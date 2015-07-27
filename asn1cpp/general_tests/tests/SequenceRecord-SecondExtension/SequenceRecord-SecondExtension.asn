@@ -1,0 +1,27 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-SecondExtension ::= SEQUENCE {
+  a INTEGER,
+  ...,
+  b BOOLEAN,
+  c INTEGER,
+  d SEQUENCE {
+    e INTEGER,
+    ...,
+    ...,
+    f IA5String
+  }
+}
+
+
+
+
+
+
+
+END

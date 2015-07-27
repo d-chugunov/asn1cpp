@@ -1,0 +1,178 @@
+asn1cpp (0.3.2) unstable; urgency=low
+
+  * Removed unnecessary #include directives from generated code.
+  * #ifdef directives in *.hpp files contains the name of module.
+  * Added option -fshort-ifdef.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Tue, 09 Jun 2015 12:58:00 +0300
+
+asn1cpp (0.3.1) unstable; urgency=low
+
+  * Bug fixes.
+  * Added option -fptr-choice-getters.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Sun, 31 May 2015 10:37:00 +0300
+
+asn1cpp (0.3.0) unstable; urgency=low
+
+  * Improved _getPtrOnMember performance for -fno-switch and -finsecure-pointers.
+  * Removed dynamic_casts.
+  * Removed virtual function _doAfterSuccessfulBerDecoding.
+  * The field _anotherPrintFunc was placed in conditional compilation (#ifdef).
+  * BER decoding context was placed in individual class.
+  * Removed asn_SET_OF_specifics_t.
+  * Removed field canonical_order from asn_CHOICE_specifics_t.
+  * Removed fields oms, roms_count and aoms_count from asn_SEQUENCE_specifics_t.
+  * Removed _pointerToMyself.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Wed, 27 May 2015 11:00:00 +0300
+
+asn1cpp (0.2.4) unstable; urgency=low
+
+  * Bug fixes.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Fri, 22 May 2015 23:45:00 +0300
+
+asn1cpp (0.2.3) unstable; urgency=low
+
+  * Fixed issue with replacing reserved keywords.
+  * Fixed misprints in docs.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Thu, 21 May 2015 20:05:00 +0300
+
+asn1cpp (0.2.2) unstable; urgency=low
+
+  * Fixed issue with namespaces.
+  * Fixed issue with OPTIONAL components referencing to information object classes.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Wed, 20 May 2015 23:10:00 +0300
+
+asn1cpp (0.2.1) unstable; urgency=low
+
+  * Fixed issue for type INTEGER (-9223372036854775808..9223372036854775807).
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Wed, 11 Mar 2015 22:17:00 +0300
+
+asn1cpp (0.2.0) unstable; urgency=low
+
+  * Option -finsecure-pointers.
+  * Option -fno-switch.
+  * Bug fixes.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Sat, 28 Feb 2015 16:48:00 +0300
+
+asn1cpp (0.1.8) unstable; urgency=low
+
+  * Fixed generation of DEFAULT components of types UniversalString and BMPString.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Sun, 22 Feb 2015 09:49:00 +0300
+
+asn1cpp (0.1.7) unstable; urgency=low
+
+  * Added tests for DEFAULT.
+  * Changes from asn1c prior to the commit at 2014-10-27 06:23:08
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Thu, 19 Feb 2015 00:07:00 +0300
+
+asn1cpp (0.1.6) unstable; urgency=low
+
+  * Optimized perfomance: noexcept in move contructor, move assignment operator = and destructor.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Sun, 15 Feb 2015 22:10:00 +0300
+
+asn1cpp (0.1.5) unstable; urgency=low
+
+  * Optimized memory usage: removed field size_t _presenceMapSize from class constr_SET.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Tue, 30 Dec 2014 17:51:00 +0300
+
+asn1cpp (0.1.4) unstable; urgency=low
+
+  * Fixed memory leak bug in _OCTET_STRING class.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Sat, 13 Dec 2014 22:04:00 +0300
+
+asn1cpp (0.1.3) unstable; urgency=low
+
+  * Fixed non-critical bug in ANY::ToType.
+  * Added optional argument to ANY::CreateFromType.
+  * BIT_STRING have got its own operators == and !=.
+  * Changed access specifiers in constr_XXX classes.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Tue, 02 Dec 2014 16:32:00 +0300
+
+asn1cpp (0.1.2) unstable; urgency=low
+
+  * Small optimization
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Sat, 08 Nov 2014 09:35:00 +0300
+
+asn1cpp (0.1.1) unstable; urgency=low
+
+  * Small optimization
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Thu, 28 Aug 2014 15:00:00 +0400
+
+asn1cpp (0.1.0) unstable; urgency=low
+
+  * CYGWIN with GCC 4.8.3 supported
+  * Fixed critical bug in compiler
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Tue, 26 Aug 2014 21:00:00 +0400
+
+asn1cpp (0.0.8) unstable; urgency=low
+
+  * x32 support
+  * Fixed bug in DER encoder for NativeInteger
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Wed, 13 Aug 2014 16:26:00 +0400
+
+asn1cpp (0.0.7) unstable; urgency=low
+
+  * Small improvements
+  * Fixed Makefile.am.sample
+  * Fixed option -pdu
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Wed, 30 Jul 2014 21:30:00 +0400
+
+
+asn1cpp (0.0.6) unstable; urgency=low
+
+  * -fcopmpound-names option
+  * CHOICE via union of pointers
+  * -fdirect-choice option
+  * Inner code restructing
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Thu, 24 Jul 2014 22:36:00 +0400
+
+
+asn1cpp (0.0.5) unstable; urgency=low
+
+  * Constraints checking
+  * Namespaces support IMPORTS and EXPORTS
+  * Some tests from asn1c package has been rewritten
+  * Code cleaning
+  * Other improvements
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Tue, 15 Jul 2014 20:50:00 +0400
+
+
+asn1cpp (0.0.4) unstable; urgency=low
+
+  * Print
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Thu, 26 Jun 2014 22:32:00 +0400
+
+asn1cpp (0.0.3) unstable; urgency=low
+
+  * DER-encoding
+  * full copy of classes
+  * various fixes
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Mon, 26 May 2014 19:00:00 +0400
+
+asn1cpp (0.0.2) unstable; urgency=low
+
+  * BER-decoding
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Mon, 26 May 2014 19:00:00 +0400

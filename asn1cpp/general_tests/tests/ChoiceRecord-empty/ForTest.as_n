@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+ChoiceRecord-empty ::= CHOICE {
+	int INTEGER,
+	real REAL
+}
+
+
+
+
+
+
+
+END

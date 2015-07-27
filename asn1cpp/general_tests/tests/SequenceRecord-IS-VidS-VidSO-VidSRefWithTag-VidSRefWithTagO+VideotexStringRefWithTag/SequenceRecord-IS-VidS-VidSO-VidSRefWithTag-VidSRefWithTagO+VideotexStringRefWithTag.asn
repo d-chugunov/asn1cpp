@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-VidS-VidSO-VidSRefWithTag-VidSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 VideotexString,
+		str2 [1] VideotexString OPTIONAL,
+		str3 VideotexStringRefWithTag,
+		str4 VideotexStringRefWithTag OPTIONAL
+	}
+}
+
+VideotexStringRefWithTag ::= [50] VideotexString
+
+END

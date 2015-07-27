@@ -1,0 +1,32 @@
+
+ModuleTest1
+	DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+	RefT1 ::= [50] INTEGER
+
+END
+
+ModuleTest2
+	DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+	IMPORTS RefT1 FROM ModuleTest1;
+
+	SequenceT2ref ::= SEQUENCE {
+			one	[0] RefT1,
+			two	[1] RefT1 OPTIONAL
+		}
+	SetT2ref ::= SET {
+			one	[0] RefT1,
+			two	[1] RefT1 OPTIONAL
+		}
+	ChoiceT2ref ::= CHOICE {
+			one	[0] RefT1,
+			two	[1] IA5String
+		}
+	SetOfT2ref ::= SET OF RefT1
+	SequenceOfT2ref ::= SEQUENCE OF RefT1
+	RefT1refRef ::= RefT1
+	
+
+END

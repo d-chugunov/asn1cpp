@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-TSSize-TSRefSize-TSRefCSize ::= SEQUENCE {
+	str1 TeletexString (SIZE ((5..10) | (12..15))),
+	str2 TSRefSize (SIZE (2..4)),
+	str3 TSRefCSize
+}
+
+TSRefSize ::= TeletexString
+TSRefCSize ::= TeletexString (SIZE (10..12))
+
+END

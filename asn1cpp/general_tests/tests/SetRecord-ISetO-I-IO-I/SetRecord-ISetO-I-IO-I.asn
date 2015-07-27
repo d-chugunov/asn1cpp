@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-ISetO-I-IO-I    ::= SET {
+	set SET {
+		type [10] INTEGER,
+		type2 [11] INTEGER OPTIONAL,
+		type3 [12] INTEGER
+	} OPTIONAL
+}
+ 
+
+END

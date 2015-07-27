@@ -1,0 +1,26 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-SeRef-SeRefO-SeDirRef-SeDirRefO ::= SET {
+	ref1 SetRecord-ISetO-I-IO-I-Ref,
+	ref2 [10] SetRecord-ISetO-I-IO-I-Ref OPTIONAL,
+	ref3 [11] SetRecord-ISetO-I-IO-I,
+	ref4 [12] SetRecord-ISetO-I-IO-I OPTIONAL
+}
+
+SetRecord-ISetO-I-IO-I-Ref ::= SetRecord-ISetO-I-IO-I
+
+SetRecord-ISetO-I-IO-I ::= SET {
+	set SET {
+		type [10] INTEGER,
+		type2 [11] INTEGER OPTIONAL,
+		type3 [12] INTEGER
+	} OPTIONAL
+}
+ 
+
+END

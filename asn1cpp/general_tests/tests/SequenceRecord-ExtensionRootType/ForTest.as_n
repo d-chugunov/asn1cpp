@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-ExtensionRootType ::= SEQUENCE {
+  a INTEGER,
+  b INTEGER
+}
+
+
+
+
+
+END

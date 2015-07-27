@@ -1,0 +1,20 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-FirstExtension ::= SEQUENCE {
+  a INTEGER,
+  b BOOLEAN OPTIONAL,
+  c INTEGER OPTIONAL,
+  d REAL
+}
+
+
+
+
+
+
+END

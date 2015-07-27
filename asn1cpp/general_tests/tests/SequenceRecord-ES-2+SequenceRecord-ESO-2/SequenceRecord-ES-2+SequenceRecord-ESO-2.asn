@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-ES-2    ::= SEQUENCE {
+	ptr1 [10] SequenceRecord-ESO-2
+}
+
+SequenceRecord-ESO-2 ::= SEQUENCE {
+	ptr2 SequenceRecord-ES-2 OPTIONAL
+}
+ 
+
+END

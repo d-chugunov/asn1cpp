@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-PSD-PS-PSD-PSD ::= SEQUENCE {
+	val1 [0] PrintableString DEFAULT "12""3",
+	val2 [1] PrintableString,
+	val3 [2] PrintableString DEFAULT "567",
+	val4 [3] PrintableString DEFAULT "78*/9"
+}
+
+END

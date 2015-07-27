@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-VidSSize-VidSRefSize-VidSRefCSize ::= SEQUENCE {
+	str1 VideotexString (SIZE ((5..10) | (12..15))),
+	str2 VidSRefSize (SIZE (2..4)),
+	str3 VidSRefCSize
+}
+
+VidSRefSize ::= VideotexString
+VidSRefCSize ::= VideotexString (SIZE (10..12))
+
+END

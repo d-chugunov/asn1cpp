@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-GenS-GenSRef-GenSRefC ::= SEQUENCE {
+	str1 GeneralString (FROM ("a".."d") | ("f".."n")),
+	str2 GenSRef (FROM ("o".."r")),
+	str3 GenSRefC
+}
+
+GenSRef ::= GeneralString
+GenSRefC ::= GeneralString (FROM ("s".."z"))
+
+END

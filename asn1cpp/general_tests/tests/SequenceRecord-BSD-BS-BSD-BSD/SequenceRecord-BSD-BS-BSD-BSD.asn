@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-BSD-BS-BSD-BSD ::= SEQUENCE {
+	val1 [0] BMPString DEFAULT "12""3",
+	val2 [1] BMPString,
+	val3 [2] BMPString DEFAULT "567",
+	val4 [3] BMPString DEFAULT "78*/9"
+}
+
+END

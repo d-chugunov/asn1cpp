@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-NS-NSRef-NSRefC ::= SEQUENCE {
+	str1 NumericString (FROM ("0".."1") | ("3".."4")),
+	str2 NSRef (FROM ("5".."7")),
+	str3 NSRefC
+}
+
+NSRef ::= NumericString
+NSRefC ::= NumericString (FROM ("8".."9"))
+
+END

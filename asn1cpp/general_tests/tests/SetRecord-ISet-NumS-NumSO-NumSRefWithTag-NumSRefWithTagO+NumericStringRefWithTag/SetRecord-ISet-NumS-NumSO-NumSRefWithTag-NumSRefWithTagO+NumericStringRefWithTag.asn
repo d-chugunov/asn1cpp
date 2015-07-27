@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-ISet-NumS-NumSO-NumSRefWithTag-NumSRefWithTagO ::= SET {
+	set SET {
+		str1 [0] NumericString,
+		str2 [1] NumericString OPTIONAL,
+		str3 [2] NumericStringRefWithTag,
+		str4 [3] NumericStringRefWithTag OPTIONAL
+	}
+}
+
+NumericStringRefWithTag ::= [50] NumericString
+
+END

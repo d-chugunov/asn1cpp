@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-OI-OIO-OIRef-OIRefO ::= SEQUENCE {
+	seq SEQUENCE {
+		objectIdentifier1 OBJECT IDENTIFIER,
+		objectIdentifier2 [1] OBJECT IDENTIFIER OPTIONAL,
+		objectIdentifier3 ObjectIdentifierRef,
+		objectIdentifier4 ObjectIdentifierRef OPTIONAL
+	}
+}
+
+ObjectIdentifierRef ::= OBJECT IDENTIFIER
+
+END

@@ -1,0 +1,32 @@
+
+ModuleTest1
+	DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+	SeqOfT1 ::= SEQUENCE OF INTEGER
+
+END
+
+ModuleTest2
+	DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+	IMPORTS SeqOfT1 FROM ModuleTest1;
+
+	SequenceT2seqof ::= SEQUENCE {
+			one	[0] SeqOfT1,
+			two	[1] SeqOfT1 OPTIONAL
+		}
+	SetT2seqof ::= SET {
+			one	[0] SeqOfT1,
+			two	[1] SeqOfT1 OPTIONAL
+		}
+	ChoiceT2seqof ::= CHOICE {
+			one	[0] SeqOfT1,
+			two	[1] IA5String
+		}
+	SetOfT2seqof ::= SET OF SeqOfT1
+	SequenceOfT2seqof ::= SEQUENCE OF SeqOfT1
+	SeqOfT1seqofRef ::= SeqOfT1
+	
+
+END

@@ -1,0 +1,13 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-N-NO ::= SEQUENCE {
+	null1 NULL,
+	null2 NULL OPTIONAL
+}
+
+END

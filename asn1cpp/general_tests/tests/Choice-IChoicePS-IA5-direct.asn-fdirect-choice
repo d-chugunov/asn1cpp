@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+Choice-IChoicePS-IA5-direct ::=  CHOICE {
+	choice CHOICE {
+	  str1 PrintableString,
+	  str2 IA5String
+	}
+}
+
+END

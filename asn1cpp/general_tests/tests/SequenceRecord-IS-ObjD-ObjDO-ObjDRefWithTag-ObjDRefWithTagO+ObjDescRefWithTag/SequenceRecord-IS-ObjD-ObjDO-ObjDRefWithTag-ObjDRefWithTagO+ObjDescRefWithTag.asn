@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-ObjD-ObjDO-ObjDRefWithTag-ObjDRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 ObjectDescriptor,
+		str2 [1] ObjectDescriptor OPTIONAL,
+		str3 ObjDescRefWithTag,
+		str4 ObjDescRefWithTag OPTIONAL
+	}
+}
+
+ObjDescRefWithTag ::= [50] ObjectDescriptor
+
+END

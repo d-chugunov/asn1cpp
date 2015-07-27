@@ -1,0 +1,10 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SeqOf-NumS ::= SEQUENCE OF NumericString
+
+END

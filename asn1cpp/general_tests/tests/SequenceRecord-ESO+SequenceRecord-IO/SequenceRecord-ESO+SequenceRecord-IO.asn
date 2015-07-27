@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-ESO    ::= SEQUENCE {
+	type [10] SequenceRecord-IO OPTIONAL
+}
+
+SequenceRecord-IO ::= SEQUENCE {
+	value INTEGER OPTIONAL
+}
+ 
+
+END

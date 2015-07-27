@@ -1,0 +1,12 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SeqOfIntSizeRef ::= SeqOfIntSize
+
+SeqOfIntSize ::= SEQUENCE SIZE (5) OF INTEGER (1..10)
+
+END

@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-US-USRef-USRefC ::= SEQUENCE {
+	str1 UniversalString (FROM ("a".."d") | ("f".."n")),
+	str2 USRef (FROM ("o".."r")),
+	str3 USRefC
+}
+
+USRef ::= UniversalString
+USRefC ::= UniversalString (FROM ("s".."z"))
+
+END

@@ -1,0 +1,12 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetOfIntSizeRefSize ::= SetOfIntSize2 SIZE (7)
+
+SetOfIntSize2 ::= SET (SIZE (5..10)) OF INTEGER (1..10)
+
+END

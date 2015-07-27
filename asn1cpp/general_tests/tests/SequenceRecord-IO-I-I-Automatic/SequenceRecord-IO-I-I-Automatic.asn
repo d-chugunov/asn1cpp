@@ -1,0 +1,14 @@
+SOME-MODULE
+
+DEFINITIONS AUTOMATIC TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IO-I-I-Automatic    ::= SEQUENCE {
+        type INTEGER OPTIONAL,
+        type2 INTEGER,
+        type3 INTEGER
+}
+
+
+END

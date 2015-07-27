@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-UTF8S-UTF8SO-UTF8SRefWithTag-UTF8SRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 UTF8String,
+		str2 [1] UTF8String OPTIONAL,
+		str3 UTF8StringRefWithTag,
+		str4 UTF8StringRefWithTag OPTIONAL
+	}
+}
+
+UTF8StringRefWithTag ::= [50] UTF8String
+
+END

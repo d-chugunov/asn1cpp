@@ -1,0 +1,30 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-ThirdExtension ::= SEQUENCE {
+  a INTEGER,
+  b BOOLEAN OPTIONAL,
+  c INTEGER OPTIONAL,
+  d SEQUENCE {
+    e INTEGER,
+    ...,
+    g BOOLEAN OPTIONAL,
+    h BMPString,
+    y REAL,
+    ...,
+    f IA5String
+  } OPTIONAL,
+  z REAL
+}
+
+
+
+
+
+
+
+END

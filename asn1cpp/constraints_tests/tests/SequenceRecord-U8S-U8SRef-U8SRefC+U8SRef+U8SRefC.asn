@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-U8S-U8SRef-U8SRefC ::= SEQUENCE {
+	str1 UTF8String (FROM ("a".."d") | ("f".."n")),
+	str2 U8SRef (FROM ("o".."r")),
+	str3 U8SRefC
+}
+
+U8SRef ::= UTF8String
+U8SRefC ::= UTF8String (FROM ("s".."z"))
+
+END

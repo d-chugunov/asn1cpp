@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-EW-EWRef-EWRefC ::= SEQUENCE {
+	en1 ENUMERATED { val1(1), val2(50), val3(100) } (val1..val3),
+	en2 EnumeratedWRef (101..200),
+	en3 EnumeratedWRefC
+}
+
+EnumeratedWRef ::= ENUMERATED
+EnumeratedWRefC ::= ENUMERATED (201..300)
+
+END

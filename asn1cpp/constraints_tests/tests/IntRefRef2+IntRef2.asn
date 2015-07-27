@@ -1,0 +1,12 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+IntRefRef2 ::= IntRef2 (30..35)
+
+IntRef2 ::= INTEGER (1..50)
+
+END

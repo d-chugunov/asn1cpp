@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-OD-ODRef-ODRefC ::= SEQUENCE {
+	str1 ObjectDescriptor (FROM ("a".."d") | ("f".."n")),
+	str2 ODRef (FROM ("o".."r")),
+	str3 ODRefC
+}
+
+ODRef ::= ObjectDescriptor
+ODRefC ::= ObjectDescriptor (FROM ("s".."z"))
+
+END

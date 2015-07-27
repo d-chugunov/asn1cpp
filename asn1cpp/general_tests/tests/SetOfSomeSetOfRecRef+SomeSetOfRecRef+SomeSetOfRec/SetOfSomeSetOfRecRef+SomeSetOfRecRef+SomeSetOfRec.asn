@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetOfSomeSetOfRecRef ::= SET OF SomeSetOfRecRef
+
+SomeSetOfRecRef ::= SomeSetOfRec
+
+SomeSetOfRec ::= SET OF SetOfSomeSetOfRecRef
+
+
+END

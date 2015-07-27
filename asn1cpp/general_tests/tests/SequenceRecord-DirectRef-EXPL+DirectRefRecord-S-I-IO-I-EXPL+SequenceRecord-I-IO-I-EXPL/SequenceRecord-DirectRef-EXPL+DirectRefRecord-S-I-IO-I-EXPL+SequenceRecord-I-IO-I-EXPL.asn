@@ -1,0 +1,21 @@
+
+SOME-MODULE
+
+DEFINITIONS EXPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-DirectRef-EXPL ::= SEQUENCE {
+	field DirectRefRecord-S-I-IO-I-EXPL
+}
+
+DirectRefRecord-S-I-IO-I-EXPL ::= SequenceRecord-I-IO-I-EXPL
+
+SequenceRecord-I-IO-I-EXPL    ::= SEQUENCE {
+	type [10] INTEGER,
+	type2 [11] INTEGER OPTIONAL,
+	type3 [12] INTEGER
+}
+ 
+
+END

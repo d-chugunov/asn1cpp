@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-B-BRefEq-BRefCEq ::= SEQUENCE {
+	bool1 BOOLEAN (FALSE),
+	bool2 BooleanRefEq (TRUE),
+	bool3 BooleanRefCEq
+}
+
+BooleanRefEq ::= BOOLEAN
+BooleanRefCEq ::= BOOLEAN (FALSE)
+
+END

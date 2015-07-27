@@ -1,0 +1,22 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+ChoiceWithExtensible ::= CHOICE {
+  a INTEGER,
+  b REAL,
+  d BOOLEAN,
+  e [10] INTEGER
+}
+
+
+
+
+
+
+
+
+END

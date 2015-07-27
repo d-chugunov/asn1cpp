@@ -1,0 +1,28 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-SecondExtension ::= SET {
+  a [0] INTEGER,
+  b [1] BOOLEAN OPTIONAL,
+  c [2] INTEGER OPTIONAL,
+  d [3] SET {
+    e [0] INTEGER,
+    ...,
+    y [10] REAL,
+    ...,
+    f [1] IA5String
+  } OPTIONAL,
+  z [15] REAL
+}
+
+
+
+
+
+
+
+END

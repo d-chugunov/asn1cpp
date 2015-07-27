@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-GT-GTO-GTRefWithTag-GTRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		time1 GeneralizedTime,
+		time2 [1] GeneralizedTime OPTIONAL,
+		time3 GeneralizedTimeRefWithTag,
+		time4 GeneralizedTimeRefWithTag OPTIONAL
+	}
+}
+
+GeneralizedTimeRefWithTag ::= [60] GeneralizedTime
+
+END

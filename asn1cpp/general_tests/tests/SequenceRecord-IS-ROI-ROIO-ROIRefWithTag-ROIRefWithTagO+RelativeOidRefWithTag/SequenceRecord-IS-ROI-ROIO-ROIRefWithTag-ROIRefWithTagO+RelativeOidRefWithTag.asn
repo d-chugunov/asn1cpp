@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-ROI-ROIO-ROIRefWithTag-ROIRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		relativeOid1 RELATIVE-OID,
+		relativeOid2 [1] RELATIVE-OID OPTIONAL,
+		relativeOid3 RelativeOidRefWithTag,
+		relativeOid4 RelativeOidRefWithTag OPTIONAL
+	}
+}
+
+RelativeOidRefWithTag ::= [50] RELATIVE-OID
+
+END

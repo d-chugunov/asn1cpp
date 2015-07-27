@@ -1,0 +1,23 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-OSRef1-OSRef1O ::= SET {
+	ref1 OctetStringRef1,
+	ref2 [10] OctetStringRef1 OPTIONAL
+}
+
+OctetStringRef1 ::= OctetStringRef2
+
+OctetStringRef2 ::= [50] OctetStringRef3 
+
+OctetStringRef3 ::= OctetStringRef4
+
+OctetStringRef4 ::= OCTET STRING
+
+
+
+END

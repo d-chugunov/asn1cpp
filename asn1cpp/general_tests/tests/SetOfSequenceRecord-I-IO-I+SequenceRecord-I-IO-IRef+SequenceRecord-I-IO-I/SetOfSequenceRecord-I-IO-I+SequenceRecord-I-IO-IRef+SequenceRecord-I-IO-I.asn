@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetOfSequenceRecord-I-IO-I ::= SET OF SequenceRecord-I-IO-IRef
+
+SequenceRecord-I-IO-IRef ::= SequenceRecord-I-IO-I
+
+SequenceRecord-I-IO-I    ::= SEQUENCE {
+        type [10] INTEGER,
+        type2 [11] INTEGER OPTIONAL,
+        type3 [12] INTEGER
+}
+
+
+END

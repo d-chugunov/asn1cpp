@@ -1,0 +1,23 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-ISO-BSE-BSEO ::= SEQUENCE {
+	seq SEQUENCE {
+		bitString1 BIT STRING { 
+			value1 (1000),
+			value2 (128),
+			value3(937429)
+		},
+		bitString2 BIT STRING {
+        	        value1 (1000),
+                	value2 (128),
+	                value3(937429)
+        	} OPTIONAL
+	} OPTIONAL
+}
+
+END

@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-I646S-I646SRef-I646SRefC ::= SEQUENCE {
+	str1 ISO646String (FROM ("a".."d") | ("f".."n")),
+	str2 I646SRef (FROM ("o".."r")),
+	str3 I646SRefC
+}
+
+I646SRef ::= ISO646String
+I646SRefC ::= ISO646String (FROM ("s".."z"))
+
+END

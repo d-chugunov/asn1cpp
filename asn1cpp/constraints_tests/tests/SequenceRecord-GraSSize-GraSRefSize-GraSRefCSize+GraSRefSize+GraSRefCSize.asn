@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-GraSSize-GraSRefSize-GraSRefCSize ::= SEQUENCE {
+	str1 GraphicString (SIZE ((5..10) | (12..15))),
+	str2 GraSRefSize (SIZE (2..4)),
+	str3 GraSRefCSize
+}
+
+GraSRefSize ::= GraphicString
+GraSRefCSize ::= GraphicString (SIZE (10..12))
+
+END

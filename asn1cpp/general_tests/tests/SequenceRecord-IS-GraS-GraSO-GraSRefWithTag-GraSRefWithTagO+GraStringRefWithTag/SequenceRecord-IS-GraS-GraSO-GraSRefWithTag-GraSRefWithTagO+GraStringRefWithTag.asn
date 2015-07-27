@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-GraS-GraSO-GraSRefWithTag-GraSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 GraphicString,
+		str2 [1] GraphicString OPTIONAL,
+		str3 GraStringRefWithTag,
+		str4 GraStringRefWithTag OPTIONAL
+	}
+}
+
+GraStringRefWithTag ::= [50] GraphicString
+
+END

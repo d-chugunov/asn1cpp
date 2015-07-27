@@ -1,0 +1,16 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetOfEnumerated ::= SET OF ENUMERATED
+                        {
+                            value1           (1),
+                            value2           (2),
+                            value3          (3)
+                        }
+
+
+END

@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-T61S-T61SO-T61SRefWithTag-T61SRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 T61String,
+		str2 [1] T61String OPTIONAL,
+		str3 T61StringRefWithTag,
+		str4 T61StringRefWithTag OPTIONAL
+	}
+}
+
+T61StringRefWithTag ::= [50] T61String
+
+END

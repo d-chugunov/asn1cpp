@@ -1,0 +1,13 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-R-RO ::= SEQUENCE {
+	real1 REAL,
+	real2 REAL OPTIONAL
+}
+
+END

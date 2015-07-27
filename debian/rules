@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+# Grab the version before dfsg
+DEB_DEBIAN_DIR=$(dir $(firstword $(MAKEFILE_LIST)))
+DEB_UPSTREAM_VERSION=$(shell dpkg-parsechangelog -l$(DEB_DEBIAN_DIR)/changelog \
+										 | sed -rne 's,^Version: ([^-]+)([.+]dfsg[^-]*)-.*,\1,p')
+DEB_DFSG_VERSION=$(shell dpkg-parsechangelog -l$(DEB_DEBIAN_DIR)/changelog \
+										 | sed -rne 's,^Version: ([^-]+)([.+]dfsg[^-]*)-.*,\2,p')
+
+%:
+	dh $@ --with autoreconf
+
+override_dh_install:
+	dh_install
+	rm debian/asn1cpp/usr/share/doc/asn1cpp/COPYING
+	rm debian/asn1cpp/usr/share/doc/asn1cpp/ChangeLog
+
+override_dh_auto_clean:
+	dh_auto_clean
+	-rm -rf asn1cpp/tests/test-check-*
+	-rm -f doc/docsrc/*.pdf
+	-rm -f doc/docsrc/asn1cpp-usage.xdv
+
+override_dh_auto_build:
+	dh_auto_build
+	$(MAKE) -C doc/docsrc regen
+
+get-orig-source:
+	uscan --noconf --force-download --rename --download-current-version --destdir=. $(DEB_DEBIAN_DIR)/..
+	[ ! -d asn1cpp-$(DEB_UPSTREAM_VERSION)$(DEB_DFSG_VERSION) ] || \
+		(echo "Directory with unpacked target tarball already exists" ; exit 1)
+	rm -rf asn1cpp-$(DEB_UPSTREAM_VERSION)
+	tar -xf $(DEB_DEBIAN_DIR)/../asn1cpp_$(DEB_UPSTREAM_VERSION).orig.tar.gz
+	rm $(DEB_DEBIAN_DIR)/../asn1cpp_$(DEB_UPSTREAM_VERSION).orig.tar.gz
+	# remove pdf documentation without sources
+	rm asn1cpp-$(DEB_UPSTREAM_VERSION)/doc/asn1cpp-quick.pdf
+	rm asn1cpp-$(DEB_UPSTREAM_VERSION)/doc/asn1cpp-usage.pdf
+	# repack sources with dfsg prefix
+	mv asn1cpp-$(DEB_UPSTREAM_VERSION) asn1cpp-$(DEB_UPSTREAM_VERSION)$(DEB_DFSG_VERSION)
+	GZIP=--best tar -cz --owner root --group root --mode a+rX \
+			 -f asn1cpp_$(DEB_UPSTREAM_VERSION)$(DEB_DFSG_VERSION).orig.tar.gz \
+			 asn1cpp-$(DEB_UPSTREAM_VERSION)$(DEB_DFSG_VERSION)
+	rm -r asn1cpp-$(DEB_UPSTREAM_VERSION)$(DEB_DFSG_VERSION)
+

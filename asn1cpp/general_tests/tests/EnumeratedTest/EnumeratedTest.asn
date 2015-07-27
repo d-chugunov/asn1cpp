@@ -1,0 +1,16 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+EnumeratedTest            ::= ENUMERATED
+{
+	variant1 (1),
+	variant2 (2),
+	variant3 (3),
+	variant10(10)
+}
+
+END

@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-USD-US-USD-USD ::= SEQUENCE {
+	val1 [0] UniversalString DEFAULT "12""3",
+	val2 [1] UniversalString,
+	val3 [2] UniversalString DEFAULT "567",
+	val4 [3] UniversalString DEFAULT "78*/9"
+}
+
+END

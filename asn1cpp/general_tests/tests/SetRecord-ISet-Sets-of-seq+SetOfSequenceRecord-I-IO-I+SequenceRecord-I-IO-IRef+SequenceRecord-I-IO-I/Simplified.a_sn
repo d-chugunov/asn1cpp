@@ -1,0 +1,27 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+BEGIN
+
+SetRecord-ISet-Sets-of-seq ::= SET {
+	set SET {
+		field1 [1] SetOfSequenceRecord-I-IO-I,
+		field2 [2] SetOfSequenceRecord-I-IO-I OPTIONAL,
+		field3 [3] SET OF SequenceRecord-I-IO-I,
+		field4 [4] SET OF SequenceRecord-I-IO-I OPTIONAL
+	}
+}
+
+SetOfSequenceRecord-I-IO-I ::= SET OF SequenceRecord-I-IO-IRef
+
+SequenceRecord-I-IO-IRef ::= SequenceRecord-I-IO-I
+
+SequenceRecord-I-IO-I    ::= SEQUENCE {
+        type [10] INTEGER,
+        type2 [11] INTEGER OPTIONAL,
+        type3 [12] INTEGER
+}
+
+
+END

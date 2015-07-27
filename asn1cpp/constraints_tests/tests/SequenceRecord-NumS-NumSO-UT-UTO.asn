@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-NumS-NumSO-UT-UTO ::= SEQUENCE {
+	string1 NumericString,
+	string2 NumericString OPTIONAL,
+	time1 UTCTime,
+	time2 UTCTime OPTIONAL
+}
+
+END

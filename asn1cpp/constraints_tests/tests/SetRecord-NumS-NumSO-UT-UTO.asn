@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-NumS-NumSO-UT-UTO ::= SET {
+	string1 [0] NumericString,
+	string2 [1] NumericString OPTIONAL,
+	time1 [2] UTCTime,
+	time2 [3] UTCTime OPTIONAL
+}
+
+END

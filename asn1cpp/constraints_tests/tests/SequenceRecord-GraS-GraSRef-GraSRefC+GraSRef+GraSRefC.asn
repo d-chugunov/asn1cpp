@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-GraS-GraSRef-GraSRefC ::= SEQUENCE {
+	str1 GraphicString (FROM ("a".."d") | ("f".."n")),
+	str2 GraSRef (FROM ("o".."r")),
+	str3 GraSRefC
+}
+
+GraSRef ::= GraphicString
+GraSRefC ::= GraphicString (FROM ("s".."z"))
+
+END

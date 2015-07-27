@@ -1,0 +1,14 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+BitStringEnumeration ::= BIT STRING { 
+	value1 (1000),
+	value2 (128),
+	value3(937429)
+}
+
+END

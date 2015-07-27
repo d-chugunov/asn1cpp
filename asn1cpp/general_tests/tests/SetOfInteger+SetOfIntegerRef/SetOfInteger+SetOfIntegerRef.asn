@@ -1,0 +1,13 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetOfInteger ::= SET OF INTEGER
+
+SetOfIntegerRef ::= SetOfInteger
+
+
+END

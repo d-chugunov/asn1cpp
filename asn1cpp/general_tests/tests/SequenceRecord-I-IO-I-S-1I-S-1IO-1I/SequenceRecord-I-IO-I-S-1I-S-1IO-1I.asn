@@ -1,0 +1,22 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-I-IO-I-S-1I-S-1IO-1I    ::= SEQUENCE {
+	type [10] INTEGER,
+	type2 [11] INTEGER OPTIONAL,
+	type3 [12] INTEGER,
+	type4 [13] SEQUENCE {
+		value1 [0] INTEGER
+	} OPTIONAL,
+	type5 [14] SEQUENCE {
+		value1 [0] INTEGER OPTIONAL,
+                value2 [1] INTEGER
+        }
+}
+ 
+
+END

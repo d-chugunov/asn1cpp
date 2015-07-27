@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-empty ::= SEQUENCE {
+	int INTEGER,
+	real REAL
+}
+
+
+
+
+
+
+
+END

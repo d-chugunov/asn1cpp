@@ -1,0 +1,18 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-SetOfSetOfISize-SetOfSetOfISizeRef-SetOfISize-SetOfISizeRef ::= SEQUENCE {
+	set1 SET OF SET (SIZE ((5..10) | (12..15))) OF INTEGER,
+	set2 SetOfSetOfISizeRef,
+	set3 SET (SIZE (20..30)) OF INTEGER,
+	set4 SetOfISizeRef
+}
+
+SetOfSetOfISizeRef ::= SET OF SET (SIZE (2..3)) OF INTEGER
+SetOfISizeRef ::= SET (SIZE (31..40)) OF INTEGER
+
+END

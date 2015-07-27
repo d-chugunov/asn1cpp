@@ -1,0 +1,21 @@
+
+SOME-MODULE
+
+DEFINITIONS AUTOMATIC TAGS    ::=
+
+BEGIN
+
+SequenceRecord-DirectRef-Auto ::= SEQUENCE {
+	field DirectRefRecord-S-I-IO-I-Auto
+}
+
+DirectRefRecord-S-I-IO-I-Auto ::= SequenceRecord-I-IO-I-Auto
+
+SequenceRecord-I-IO-I-Auto    ::= SEQUENCE {
+	type [10] INTEGER,
+	type2 [11] INTEGER OPTIONAL,
+	type3 [12] INTEGER
+}
+ 
+
+END

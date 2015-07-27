@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-BmpS-BmpSO-BmpSRefWithTag-BmpSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 BMPString,
+		str2 [1] BMPString OPTIONAL,
+		str3 BMPStringRefWithTag,
+		str4 BMPStringRefWithTag OPTIONAL
+	}
+}
+
+BMPStringRefWithTag ::= [50] BMPString
+
+END

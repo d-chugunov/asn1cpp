@@ -1,0 +1,18 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-SeqOfSeqOfISize-SeqOfSeqOfISizeRef-SeqOfISize-SeqOfISizeRef ::= SEQUENCE {
+	seq1 SEQUENCE OF SEQUENCE (SIZE ((5..10) | (12..15))) OF INTEGER,
+	seq2 SeqOfSeqOfISizeRef,
+	seq3 SEQUENCE (SIZE (20..30)) OF INTEGER,
+	seq4 SeqOfISizeRef
+}
+
+SeqOfSeqOfISizeRef ::= SEQUENCE OF SEQUENCE (SIZE (2..3)) OF INTEGER
+SeqOfISizeRef ::= SEQUENCE (SIZE (31..40)) OF INTEGER
+
+END

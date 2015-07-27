@@ -1,0 +1,13 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-ESO-selfRef    ::= SEQUENCE {
+	ptr1 [10] SequenceRecord-ESO-selfRef OPTIONAL
+}
+
+
+END

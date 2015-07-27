@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-I646SSize-I646SRefSize-I646SRefCSize ::= SEQUENCE {
+	str1 ISO646String (SIZE ((5..10) | (12..15))),
+	str2 I646SRefSize (SIZE (2..4)),
+	str3 I646SRefCSize
+}
+
+I646SRefSize ::= ISO646String
+I646SRefCSize ::= ISO646String (SIZE (10..12))
+
+END

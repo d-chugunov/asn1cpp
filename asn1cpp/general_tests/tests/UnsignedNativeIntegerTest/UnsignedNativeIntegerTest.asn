@@ -1,0 +1,10 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+UnsignedNativeIntegerTest ::= INTEGER(0..2147483648)
+
+END

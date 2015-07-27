@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-GenS-GenSO-GenSRefWithTag-GenSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 GeneralString,
+		str2 [1] GeneralString OPTIONAL,
+		str3 GenStringRefWithTag,
+		str4 GenStringRefWithTag OPTIONAL
+	}
+}
+
+GenStringRefWithTag ::= [50] GeneralString
+
+END

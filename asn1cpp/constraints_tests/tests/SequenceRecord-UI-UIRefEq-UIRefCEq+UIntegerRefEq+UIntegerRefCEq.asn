@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-UI-UIRefEq-UIRefCEq ::= SEQUENCE {
+	int1 INTEGER (2147483649),
+	int2 UIntegerRefEq (2147483749),
+	int3 UIntegerRefCEq
+}
+
+UIntegerRefEq ::= INTEGER (2147483648..2147484000)
+UIntegerRefCEq ::= INTEGER (2147483849)
+
+END

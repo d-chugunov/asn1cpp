@@ -1,0 +1,11 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+EnumeratedRefRef ::= [50] EnumeratedRef
+EnumeratedRef ::= [60] ENUMERATED
+
+END

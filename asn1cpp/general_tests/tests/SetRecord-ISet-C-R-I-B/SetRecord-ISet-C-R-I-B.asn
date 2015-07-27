@@ -1,0 +1,18 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-ISet-C-R-I-B ::= SET {
+	set SET {
+		choice CHOICE {
+			real REAL,
+			integer INTEGER
+		},
+		boolean BOOLEAN
+	}
+} 
+
+END

@@ -1,0 +1,18 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-2inner-seq    ::= SEQUENCE {
+	level1 SEQUENCE {
+			level2 SEQUENCE {
+				value INTEGER		
+			}
+		}
+}
+
+ 
+
+END

@@ -1,0 +1,13 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+Choice-NumS-UT-direct ::= CHOICE {
+	string NumericString,
+	time UTCTime
+}
+
+END

@@ -1,0 +1,9 @@
+
+The name of the check-N.cpp file is used as a pointer to the file
+../../tests/N-*.asn1. That ASN.1 file is compiled together with check-N.cpp
+in a temporary directory. The check-N.cpp file contains the test engine.
+
+For manual execution of a specific test case:
+
+	./check-assembly.sh check-<NN>.cpp
+

@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-OS-OSO-OSRef-OSRefO ::= SEQUENCE {
+	octetString1 OCTET STRING,
+	octetString2 [1] OCTET STRING OPTIONAL,
+	octetString3 OctetStringRef,
+	octetString4 OctetStringRef OPTIONAL
+}
+
+OctetStringRef ::= OCTET STRING
+
+END

@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-TeleS-TeleSO-TeleSRefWithTag-TeleSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 TeletexString,
+		str2 [1] TeletexString OPTIONAL,
+		str3 TeletexStringRefWithTag,
+		str4 TeletexStringRefWithTag OPTIONAL
+	}
+}
+
+TeletexStringRefWithTag ::= [50] TeletexString
+
+END

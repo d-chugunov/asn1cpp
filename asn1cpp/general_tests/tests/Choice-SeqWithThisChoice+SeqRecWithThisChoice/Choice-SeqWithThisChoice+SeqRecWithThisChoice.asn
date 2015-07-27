@@ -1,0 +1,16 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+Choice-SeqWithThisChoice ::=  CHOICE {
+	seq SeqRecWithThisChoice
+}
+
+SeqRecWithThisChoice ::= SEQUENCE {
+    ch Choice-SeqWithThisChoice OPTIONAL
+}
+
+END

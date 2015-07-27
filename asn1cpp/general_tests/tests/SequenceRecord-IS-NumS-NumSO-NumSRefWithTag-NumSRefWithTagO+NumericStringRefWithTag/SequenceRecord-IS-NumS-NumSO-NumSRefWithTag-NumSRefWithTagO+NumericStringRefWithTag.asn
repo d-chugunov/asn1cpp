@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-NumS-NumSO-NumSRefWithTag-NumSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 NumericString,
+		str2 [1] NumericString OPTIONAL,
+		str3 NumericStringRefWithTag,
+		str4 NumericStringRefWithTag OPTIONAL
+	}
+}
+
+NumericStringRefWithTag ::= [50] NumericString
+
+END

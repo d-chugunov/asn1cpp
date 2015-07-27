@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-T61SSize-T61SRefSize-T61SRefCSize ::= SEQUENCE {
+	str1 T61String (SIZE ((5..10) | (12..15))),
+	str2 T61SRefSize (SIZE (2..4)),
+	str3 T61SRefCSize
+}
+
+T61SRefSize ::= T61String
+T61SRefCSize ::= T61String (SIZE (10..12))
+
+END

@@ -1,0 +1,10 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+RealRef ::= REAL
+
+END

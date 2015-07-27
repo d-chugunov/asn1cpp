@@ -1,0 +1,35 @@
+
+ModuleTest1
+	DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+	ChoiceT1 ::= CHOICE {
+			first	[0] INTEGER,
+			second	[1] INTEGER
+		}
+
+END
+
+ModuleTest2
+	DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+	IMPORTS ChoiceT1 FROM ModuleTest1;
+
+	SequenceT2choice ::= SEQUENCE {
+			one	[0] ChoiceT1,
+			two	[1] ChoiceT1 OPTIONAL
+		}
+	SetT2choice ::= SET {
+			one	[0] ChoiceT1,
+			two	[1] ChoiceT1 OPTIONAL
+		}
+	ChoiceT2choice ::= CHOICE {
+			one	[0] ChoiceT1,
+			two	[1] IA5String
+		}
+	SetOfT2choice ::= SET OF ChoiceT1
+	SequenceOfT2choice ::= SEQUENCE OF ChoiceT1
+	ChoiceT1choiceRef ::= ChoiceT1
+	
+
+END

@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-UniS-UniSO-UniSRefWithTag-UniSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 UniversalString,
+		str2 [1] UniversalString OPTIONAL,
+		str3 UniversalStringRefWithTag,
+		str4 UniversalStringRefWithTag OPTIONAL
+	}
+}
+
+UniversalStringRefWithTag ::= [50] UniversalString
+
+END

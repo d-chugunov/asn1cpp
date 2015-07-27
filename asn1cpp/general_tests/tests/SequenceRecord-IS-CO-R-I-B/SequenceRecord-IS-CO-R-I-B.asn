@@ -1,0 +1,18 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-CO-R-I-B ::= SEQUENCE {
+	set SEQUENCE {
+		choice CHOICE {
+			real REAL,
+			integer INTEGER
+		} OPTIONAL,
+		boolean BOOLEAN
+	}
+} 
+
+END

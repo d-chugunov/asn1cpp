@@ -1,0 +1,21 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-IE ::= SEQUENCE {
+
+	field SEQUENCE {
+		value INTEGER
+			{
+			    value1           (0),
+			    value2           (1),
+			    value3          (2)
+			}
+	}
+}
+ 
+
+END

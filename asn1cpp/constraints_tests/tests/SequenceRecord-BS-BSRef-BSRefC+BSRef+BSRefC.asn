@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-BS-BSRef-BSRefC ::= SEQUENCE {
+	str1 BMPString (FROM ("a".."d") | ("f".."n")),
+	str2 BSRef (FROM ("o".."r")),
+	str3 BSRefC
+}
+
+BSRef ::= BMPString
+BSRefC ::= BMPString (FROM ("s".."z"))
+
+END

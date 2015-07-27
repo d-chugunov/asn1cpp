@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-IA5S-IA5SO-IA5SRefWithTag-IA5SRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 IA5String,
+		str2 [1] IA5String OPTIONAL,
+		str3 IA5StringRefWithTag,
+		str4 IA5StringRefWithTag OPTIONAL
+	}
+}
+
+IA5StringRefWithTag ::= [50] IA5String
+
+END

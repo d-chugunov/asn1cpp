@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-BitSSize-BitSRefSize-BitSRefCSize ::= SEQUENCE {
+	str1 BIT STRING (SIZE ((5..10) | (12..15))),
+	str2 BitSRefSize (SIZE (2..4)),
+	str3 BitSRefCSize
+}
+
+BitSRefSize ::= BIT STRING
+BitSRefCSize ::= BIT STRING (SIZE (10..12))
+
+END

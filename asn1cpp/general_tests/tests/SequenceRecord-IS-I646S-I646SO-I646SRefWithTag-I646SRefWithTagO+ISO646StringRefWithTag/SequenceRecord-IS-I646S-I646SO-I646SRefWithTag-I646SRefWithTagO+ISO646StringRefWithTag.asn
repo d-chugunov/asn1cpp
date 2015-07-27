@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-I646S-I646SO-I646SRefWithTag-I646SRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 ISO646String,
+		str2 [1] ISO646String OPTIONAL,
+		str3 ISO646StringRefWithTag,
+		str4 ISO646StringRefWithTag OPTIONAL
+	}
+}
+
+ISO646StringRefWithTag ::= [50] ISO646String
+
+END

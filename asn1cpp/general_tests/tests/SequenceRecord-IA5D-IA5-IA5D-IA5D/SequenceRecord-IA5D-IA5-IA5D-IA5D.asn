@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IA5D-IA5-IA5D-IA5D ::= SEQUENCE {
+	val1 [0] IA5String DEFAULT "12""3",
+	val2 [1] IA5String,
+	val3 [2] IA5String DEFAULT "567",
+	val4 [3] IA5String DEFAULT "78*/9"
+}
+
+END

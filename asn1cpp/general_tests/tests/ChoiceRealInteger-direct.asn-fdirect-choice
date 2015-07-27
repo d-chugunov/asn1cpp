@@ -1,0 +1,13 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+ChoiceRealInteger-direct ::=  CHOICE {
+	real REAL,
+	integer INTEGER
+}
+
+END

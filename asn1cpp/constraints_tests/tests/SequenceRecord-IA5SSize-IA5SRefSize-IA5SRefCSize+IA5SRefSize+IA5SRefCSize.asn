@@ -1,0 +1,17 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IA5SSize-IA5SRefSize-IA5SRefCSize ::= SEQUENCE {
+	str1 IA5String (SIZE ((5..10) | (12..15))),
+	str2 IA5SRefSize (SIZE (2..4)),
+	str3 IA5SRefCSize
+}
+
+IA5SRefSize ::= IA5String
+IA5SRefCSize ::= IA5String (SIZE (10..12))
+
+END

@@ -1,0 +1,15 @@
+Source: asn1cpp
+Section: devel
+Priority: extra
+Maintainer: Dmitriy Chugunov <chugunovdima@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), autotools-dev, dh-autoreconf, automake, libtool, m4, flex, texlive, texlive-xetex, lmodern
+Standards-Version: 3.9.4
+Homepage: 
+
+Package: asn1cpp
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: ASN.1 compiler for C++
+ This ASN.1 compiler turns the formal ASN.1 specifications into the C++
+ code. The compiler is shipped together with conformant BER/DER
+ codecs.

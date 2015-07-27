@@ -1,0 +1,15 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+Choice-IChoiceRealInteger ::=  CHOICE {
+	choice CHOICE {
+	  real REAL,
+	  integer INTEGER
+	}
+}
+
+END

@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-PriS-PriSO-PriSRefWithTag-PriSRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		str1 PrintableString,
+		str2 [1] PrintableString OPTIONAL,
+		str3 PrintableStringRefWithTag,
+		str4 PrintableStringRefWithTag OPTIONAL
+	}
+}
+
+PrintableStringRefWithTag ::= [50] PrintableString
+
+END

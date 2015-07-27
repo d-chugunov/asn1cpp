@@ -1,0 +1,28 @@
+
+
+=== Bug importance disclosure terms ===
+
+SEVERITY.
+    This term applies to the frequence the particular construct is used
+    in the real world. The higher the frequency, the more chances of triggering
+    this bug.
+	low:	The ASN.1 specifications which could trigger
+		this kind of bug are not widespread.
+	medium:	The particular ASN.1 construct is used quite often,
+		so the chance of triggering an error is considerable.
+	high:	This fix is considered urgent, or the particular ASN.1
+		construct triggering this bug is in wide use.
+
+SECURITY IMPACT.
+    This term applies to the amount of potential damage a bug exploitation
+    could cause.
+	none:	No malicious exploitation is possible.
+	low:	The local exploitation is unlikely; the remote exploitation
+		is impossible.
+	medium:	The remote exploitation is possible when a particular ASN.1
+		construct is being used. If possible, only hard failure, spin
+		or memory leak are the possible outcome: no shellcode
+		injection could possibly be carried by the attack.
+	high:	The remote shellcode injection is possible, or the bug is
+		otherwise remotely exploitable for most specifications.
+

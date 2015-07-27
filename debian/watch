@@ -1,0 +1,4 @@
+# watch control file for uscan
+version=3
+opts=dversionmangle=s/[\+\.]dfsg\d*// \
+http://sf.net/asn1c/asn1c-(.+)\.tar\.gz debian uupdate

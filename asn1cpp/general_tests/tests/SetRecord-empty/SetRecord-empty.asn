@@ -1,0 +1,18 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-empty ::= SET {
+	...
+}
+
+
+
+
+
+
+
+END

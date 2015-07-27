@@ -1,0 +1,20 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SetRecord-FirstExtension ::= SET {
+  a [0]INTEGER,
+  ...,
+  b [1] BOOLEAN,
+  c [2] INTEGER
+}
+
+
+
+
+
+
+END

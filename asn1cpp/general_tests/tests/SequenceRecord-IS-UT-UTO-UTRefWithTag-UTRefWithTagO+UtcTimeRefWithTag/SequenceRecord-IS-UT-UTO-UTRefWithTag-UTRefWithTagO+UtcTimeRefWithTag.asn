@@ -1,0 +1,19 @@
+
+SOME-MODULE
+
+DEFINITIONS IMPLICIT TAGS    ::=
+
+BEGIN
+
+SequenceRecord-IS-UT-UTO-UTRefWithTag-UTRefWithTagO ::= SEQUENCE {
+	seq SEQUENCE {
+		time1 UTCTime,
+		time2 [1] UTCTime OPTIONAL,
+		time3 UtcTimeRefWithTag,
+		time4 UtcTimeRefWithTag OPTIONAL
+	}
+}
+
+UtcTimeRefWithTag ::= [50] UTCTime
+
+END

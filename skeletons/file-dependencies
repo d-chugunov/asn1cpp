@@ -1,0 +1,58 @@
+# This file contains dependency information for the asn1c compiler's skeletons.
+# Feel free to edit this file.
+# The format is like this:
+# 	<filename> <dependent-file> ...
+#
+# $Id$
+#
+
+ANY.hpp ANY.cpp
+BMPString.hpp BMPString.cpp UTF8String.hpp
+BOOLEAN.hpp BOOLEAN.cpp AsnNativePrimitiveType.hpp
+ENUMERATED.hpp ENUMERATED.cpp INTEGER.hpp NativeEnumerated.hpp
+GeneralString.hpp GeneralString.cpp
+GeneralizedTime.hpp GeneralizedTime.cpp
+GraphicString.hpp GraphicString.cpp
+IA5String.hpp IA5String.cpp
+INTEGER.hpp INTEGER.cpp
+ISO646String.hpp ISO646String.cpp
+NULL.hpp NULL.cpp BOOLEAN.hpp
+NativeEnumerated.hpp NativeEnumerated.cpp NativeInteger.hpp
+NativeReal.hpp NativeReal.cpp REAL.hpp
+NumericString.hpp NumericString.cpp
+OBJECT_IDENTIFIER.hpp OBJECT_IDENTIFIER.cpp INTEGER.hpp
+ObjectDescriptor.hpp ObjectDescriptor.cpp GraphicString.hpp
+PrintableString.hpp PrintableString.cpp
+REAL.hpp REAL.cpp INTEGER.hpp
+RELATIVE-OID.hpp RELATIVE-OID.cpp OBJECT_IDENTIFIER.hpp
+T61String.hpp T61String.cpp
+TeletexString.hpp TeletexString.cpp
+UTCTime.hpp UTCTime.cpp GeneralizedTime.hpp
+UTF8String.hpp UTF8String.cpp
+UniversalString.hpp UniversalString.cpp UTF8String.hpp
+VideotexString.hpp VideotexString.cpp
+VisibleString.hpp VisibleString.cpp
+constr_CHOICE.hpp constr_CHOICE.cpp
+constr_SEQUENCE.hpp constr_SEQUENCE.cpp
+constr_SEQUENCE_OF.hpp constr_SEQUENCE_OF.cpp constr_SET_OF.hpp
+constr_SET.hpp constr_SET.cpp
+constr_SET_OF.hpp constr_SET_OF.cpp
+NativeInteger.hpp NativeInteger.cpp AsnNativePrimitiveType.hpp INTEGER.hpp
+
+COMMON-FILES:			# THIS IS A SPECIAL SECTION
+asn_application.hpp		# Applications should include this file
+asn_system.hpp			# Platform-dependent types
+asn_codecs.hpp			# Return types of encoders and decoders
+asn_internal.hpp			# Internal stuff
+asn_internal.cpp
+OCTET_STRING.hpp OCTET_STRING.cpp	# This one is used too widely
+BIT_STRING.hpp BIT_STRING.cpp	# This one is necessary for the above one
+asn_codecs_prim.hpp	# enc/decoders for primitive types
+ber_tlv_length.hpp ber_tlv_length.cpp	# BER TLV L (length)
+ber_tlv_tag.hpp ber_tlv_tag.cpp	# BER TLV T (tag)
+ber_decoder.hpp ber_decoder.cpp 	# BER decoder support code
+der_encoder.hpp der_encoder.cpp	# DER encoder support code
+constr_TYPE.hpp constr_TYPE.cpp	# Description of a type
+constraints.hpp constraints.cpp	# Subtype constraints support
+AsnAbstractType.hpp AsnAbstractType.cpp
+
