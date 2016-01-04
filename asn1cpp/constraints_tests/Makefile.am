@@ -15,3 +15,4 @@ clean-local:
 	rm -rf secure-ptrs-no-switch
 	rm -rf insecure-ptrs
 	rm -rf insecure-ptrs-no-switch
+	rm -rf secure-ptrs-ptr-choice-getters
