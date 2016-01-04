@@ -91,6 +91,8 @@ static int emit_type_DEF(arg_t *arg, asn1p_expr_t *expr, enum tvm_compat tv_mode
                       ASN_CONSTR_CHOICE == expr->parent_expr->expr_type &&  \
                       !(arg->flags & A1C_DIRECT_CHOICE))
 
+#define IS_SINGLE_UNIT(arg) (arg->flags & A1C_SINGLE_UNIT)
+
 int
 asn1c_lang_CPP_type_REAL(arg_t *arg) {
 	return asn1c_lang_CPP_type_SIMPLE_TYPE(arg);
@@ -2658,7 +2660,9 @@ asn1c_lang_CPP_type_SIMPLE_TYPE(arg_t *arg) {
 		}
 
 	} else {
-		GEN_INCLUDE(asn1c_type_name(arg, expr, TNF_INCLUDE));
+    if (!IS_SINGLE_UNIT(arg) || (!(expr->expr_type & ASN_CONSTR_MASK) && expr->expr_type > ASN_CONSTR_MASK)) {
+      GEN_INCLUDE(asn1c_type_name(arg, expr, TNF_INCLUDE));
+    }
 
 		REDIR(OT_TYPE_DECLS);
     //OUT("class %s;\n", MKID(expr));
@@ -4792,18 +4796,32 @@ emit_include_dependencies(arg_t *arg) {
 				REDIR(saved_target);
 			}
 		}
-
-		if((!(memb->expr_type & ASN_CONSTR_MASK)
-			&& memb->expr_type > ASN_CONSTR_MASK)
-		|| memb->meta_type == AMT_TYPEREF) {
-			if(memb->marker.flags & EM_UNRECURSE) {
-				GEN_POSTINCLUDE(asn1c_type_name(arg,
-					memb, TNF_INCLUDE));
-			} else {
-				GEN_INCLUDE(asn1c_type_name(arg,
-					memb, TNF_INCLUDE));
-			}
-		}
+    
+    if (!IS_SINGLE_UNIT(arg)) {
+      if((!(memb->expr_type & ASN_CONSTR_MASK)
+        && memb->expr_type > ASN_CONSTR_MASK)
+      || memb->meta_type == AMT_TYPEREF) {
+        if(memb->marker.flags & EM_UNRECURSE) {
+          GEN_POSTINCLUDE(asn1c_type_name(arg,
+            memb, TNF_INCLUDE));
+        } else {
+          GEN_INCLUDE(asn1c_type_name(arg,
+            memb, TNF_INCLUDE));
+        }
+      }
+    } else {
+      if((!(memb->expr_type & ASN_CONSTR_MASK)
+        && memb->expr_type > ASN_CONSTR_MASK)
+      /*|| memb->meta_type == AMT_TYPEREF*/) {
+        if(memb->marker.flags & EM_UNRECURSE) {
+  //				GEN_POSTINCLUDE(asn1c_type_name(arg,
+  //					memb, TNF_INCLUDE));
+        } else {
+          GEN_INCLUDE(asn1c_type_name(arg,
+            memb, TNF_INCLUDE));
+        }
+      }
+    }
 	}
 
 	return 0;

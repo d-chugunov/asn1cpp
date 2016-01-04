@@ -120,6 +120,8 @@ main(int ac, char **av) {
       asn1_compiler_flags |= A1C_PTR_CHOICE_GETTERS;
     } else if(strcmp(optarg, "short-ifdef") == 0) {
       asn1_compiler_flags |= A1C_SHORT_IFDEF;
+    } else if(strncmp(optarg, "single-unit", 11) == 0) {
+      asn1_compiler_flags |= A1C_SINGLE_UNIT;
     } else {
 			fprintf(stderr, "-f%s: Invalid argument\n", optarg);
 			exit(EX_USAGE);

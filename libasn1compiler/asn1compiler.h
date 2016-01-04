@@ -94,7 +94,12 @@ enum asn1c_flags {
    * -fshort-ifdef
    * Use short form (without module name) of #ifdef directive in *.hpp files.
    */
-  A1C_SHORT_IFDEF            = 0x400000
+  A1C_SHORT_IFDEF            = 0x400000,
+  /*
+   * -fsingle-unit
+   * Generate single translation unit for entire ASN.1-file instead of generating a translation unit for each type in ASN.1-file.
+   */
+  A1C_SINGLE_UNIT            = 0x800000
 };
 
 /*

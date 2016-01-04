@@ -5,6 +5,7 @@
 #include "asn1c_misc.h"
 #include "asn1c_save.h"
 #include "asn1c_out.h"
+#include "../libasn1fix/asn1fix_export.h"
 
 #ifndef HAVE_SYMLINK
 #define symlink(a,b) (errno=ENOSYS, -1)
@@ -27,6 +28,122 @@ static int include_type_to_pdu_collection(arg_t *arg);
 static void pdu_collection_print_unused_types(arg_t *arg);
 static const char *generate_pdu_C_definition(void);
 
+int wasIncludePrinted = 0;
+
+typedef struct TopSortGraphNode_s {
+  asn1p_module_t* module;
+  asn1p_expr_t* expr;
+  size_t* edges;
+  size_t edgesCount;
+  size_t edgesAlloced;
+} TopSortGraphNode;
+
+static size_t
+top_sort_find_vertex(arg_t *arg, TopSortGraphNode** vertices, size_t* verticesCount,
+        size_t* verticesAlloced, asn1p_module_t* module, asn1p_expr_t* expr)
+{
+  if (*verticesCount) {
+    TopSortGraphNode* verticesArr = *vertices;
+    size_t i;
+    for (i = 0; i < *verticesCount; ++i) {
+      if (0 == strcmp(verticesArr[i].module->ModuleName, module->ModuleName) &&
+              0 == strcmp(verticesArr[i].expr->Identifier, expr->Identifier))
+      {
+        return i;
+      }
+    }
+  }
+  //vertex was not found => create new
+  
+  if (*verticesCount == *verticesAlloced) {
+    //should do realloc
+    *verticesAlloced = *verticesAlloced ? (*verticesAlloced) << 1 : 1;
+    *vertices = realloc(*vertices, *verticesAlloced * sizeof(**vertices));
+    if (!*vertices) {
+      fprintf(stderr, "Unable to realloc memory for top sort graph.\n");
+      exit(1);
+    }
+  }
+  TopSortGraphNode* newNode = (*vertices) + *verticesCount;
+  memset(newNode, 0, sizeof(*newNode));
+  newNode->module = module;
+  newNode->expr = expr;
+//  fprintf(stderr, "Adding vertex %s:%s with index %zu\n", module->ModuleName, expr->Identifier, *verticesCount);
+  ++(*verticesCount);
+  return (*verticesCount) - 1;
+}
+
+static void
+top_sort_add_edge(TopSortGraphNode* node, size_t edgeTo, TopSortGraphNode* nodes) {
+  size_t i;
+  for (i = 0; i < node->edgesCount; ++i) {
+    if (node->edges[i] == edgeTo)
+      return;
+  }
+  if (node->edgesCount == node->edgesAlloced) {
+    node->edgesAlloced = node->edgesAlloced ? (node->edgesAlloced) << 1 : 1;
+    node->edges = realloc(node->edges, node->edgesAlloced * sizeof(*node->edges));
+    if (!node->edges) {
+      fprintf(stderr, "Unable to realloc memory for edges of top sort graph.\n");
+      exit(1);
+    }
+  }
+  node->edges[node->edgesCount] = edgeTo;
+//  fprintf(stderr, "Adding vertex between vertex %s:%s and vertex %s:%s\n", node->module->ModuleName, node->expr->Identifier, nodes[edgeTo].module->ModuleName, nodes[edgeTo].expr->Identifier);
+  ++node->edgesCount;
+}
+
+static int
+is_module_member(asn1p_t* asn, asn1p_expr_t* expr) {
+  asn1p_expr_t* moduleExpr;
+  asn1p_module_t *mod;
+  TQ_FOR(mod, &(asn->modules), mod_next) {
+		TQ_FOR(moduleExpr, &(mod->members), next) {
+      if (moduleExpr == expr) {
+        return 1;
+      }
+		}
+	}
+  return 0;
+}
+
+static void
+top_sort_dfs(TopSortGraphNode* nodes, size_t nodeIndex, uint8_t* used,
+        size_t* resultList, size_t* currentIndexInList)
+{
+  used[nodeIndex] = 1;
+  size_t i;
+  TopSortGraphNode* node = nodes + nodeIndex;
+  for (i = 0; i < node->edgesCount; ++i) {
+    size_t to = node->edges[i];
+    if (!used[to]) {
+      top_sort_dfs(nodes, to, used, resultList, currentIndexInList);
+    }
+  }
+  resultList[*currentIndexInList] = nodeIndex;
+  ++(*currentIndexInList);
+}
+
+static void
+top_sort(TopSortGraphNode* nodes, size_t nodesCount, size_t* resultList) {
+  size_t currentIndexInList = 0;
+  uint8_t* used = calloc(nodesCount, sizeof(uint8_t));
+  int i;
+  for (i = 0; i < nodesCount; ++i) {
+    if (!used[i]) {
+      top_sort_dfs(nodes, i, used, resultList, &currentIndexInList);
+    }
+  }
+  free(used);
+  for (i = 0; i < nodesCount / 2; ++i) {
+    size_t t = resultList[i];
+    resultList[i] = resultList[nodesCount - 1 - i];
+    resultList[nodesCount - 1 - i] = t;
+  }
+}
+
+#define IS_SINGLE_UNIT(arg) (arg->flags & A1C_SINGLE_UNIT)
+
 int
 asn1c_save_compiled_output(arg_t *arg, const char *datadir,
 		int argc, int optc, char **argv) {
@@ -41,16 +158,86 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
 		WARNING("Cannot read file-dependencies information "
 			"from %s\n", datadir);
 	}
+  
+  if (IS_SINGLE_UNIT(arg)) {
+    TopSortGraphNode* topSortGraphNodes = 0;
+    size_t topSortGraphNodesCount = 0, topSortGraphNodesAlloced = 0;
 
-	TQ_FOR(mod, &(arg->asn->modules), mod_next) {
-		TQ_FOR(arg->expr, &(mod->members), next) {
-			if(asn1_lang_map[arg->expr->meta_type]
-				[arg->expr->expr_type].type_cb) {
-				if(asn1c_dump_streams(arg, deps, optc, argv))
-					return -1;
-			}
-		}
-	}
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
+          //find index of current vertex
+          size_t currentVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                  &topSortGraphNodesAlloced, mod, arg->expr);
+          //create edge for reference
+          if (arg->expr->meta_type == AMT_TYPEREF) {
+            asn1p_expr_t* ref_expr = asn1f_lookup_symbol_ex(arg->asn, arg->expr, arg->expr->reference);
+            if (!ref_expr) {
+              fprintf(stderr, "Cannot find terminal type by reference %s:%s.\n", arg->expr->module->ModuleName, arg->expr->Identifier);
+              exit(1);
+            }
+            size_t refVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                    &topSortGraphNodesAlloced, ref_expr->module, ref_expr);
+            top_sort_add_edge(&topSortGraphNodes[refVertex], currentVertex, topSortGraphNodes);
+          }
+          //create edges for all members
+          asn1p_expr_t *memb;
+          TQ_FOR(memb, &(arg->expr->members), next) {
+            if((!(memb->expr_type & ASN_CONSTR_MASK) && memb->expr_type > ASN_CONSTR_MASK)
+              || memb->meta_type == AMT_TYPEREF)
+            {
+              asn1p_expr_t* expr = memb;
+              //find index of member vertex
+              if (expr->meta_type == AMT_TYPEREF) {
+                asn1p_expr_t* ref_expr = asn1f_lookup_symbol_ex(arg->asn, expr, expr->reference);
+                if (!ref_expr) {
+                  fprintf(stderr, "Cannot find terminal type by reference %s:%s.\n", expr->module->ModuleName, expr->Identifier);
+                  exit(1);
+                } else {
+                  expr = ref_expr;
+                }
+              }
+              if (!is_module_member(arg->asn, expr))
+                continue;
+              size_t memberVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                  &topSortGraphNodesAlloced, expr->module, expr);
+              //make edge between member vertex and current vertex
+              top_sort_add_edge(&topSortGraphNodes[memberVertex], currentVertex, topSortGraphNodes);
+            }
+          }
+        }
+      }
+    }
+
+    size_t* topSortResult = calloc(topSortGraphNodesCount, sizeof(size_t));
+
+    top_sort(topSortGraphNodes, topSortGraphNodesCount, topSortResult);
+
+  //  for (i = 0; i < topSortGraphNodesCount; ++i) {
+  //    printf("%zu ", topSortResult[i]);
+  //  }
+  //  printf("\n");
+  //  
+  //  exit(0);
+
+    for (i = 0; i < topSortGraphNodesCount; ++i) {
+      arg->expr = topSortGraphNodes[topSortResult[i]].expr;
+      if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
+        if(asn1c_dump_streams(arg, deps, optc, argv))
+          return -1;
+      }
+    }
+  } else {
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type]
+          [arg->expr->expr_type].type_cb) {
+          if(asn1c_dump_streams(arg, deps, optc, argv))
+            return -1;
+        }
+      }
+    }
+  }
 
 	/*
 	 * Dump out the Makefile template and the rest of the support code.
@@ -230,9 +417,21 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 			expr->Identifier, expr->_lineno);
 		return -1;
 	}
+  if (!IS_SINGLE_UNIT(arg)) {
   fp_c = asn1c_open_file(expr->Identifier, ".cpp", &tmpname_c);
   fp_h = asn1c_open_file(expr->Identifier, ".hpp", &tmpname_h);
-	
+  } else {
+    fp_c = fopen("TestOneFile.cpp", "a");
+    tmpname_c = strdup("TestOneFile.cpp");
+    fp_h = fopen("TestOneFile.hpp", "a");
+    tmpname_h = strdup("TestOneFile.hpp");
+    if (!wasIncludePrinted) {
+      HINCLUDE("AsnAbstractType.hpp");
+      fprintf(fp_c, "#include \"TestOneFile.hpp\"\n\n");
+      wasIncludePrinted = 1;
+    }
+  }
+          
 	if(fp_c == NULL || fp_h == NULL) {
 		if(fp_c) { unlink(tmpname_c); free(tmpname_c); fclose(fp_c); }
 		if(fp_h) { unlink(tmpname_h); free(tmpname_h); fclose(fp_h); }
@@ -294,7 +493,9 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 #undef IDENTIFIER_FOR_IFDEF
 
 	//HINCLUDE("asn_internal.hpp");
-  fprintf(fp_c, "#include \"%s.hpp\"\n\n", expr->Identifier);
+  if (!IS_SINGLE_UNIT(arg)) {
+    fprintf(fp_c, "#include \"%s.hpp\"\n\n", expr->Identifier);
+  }
 	if(arg->flags & A1C_NO_INCLUDE_DEPS)
 		SAVE_STREAM(fp_c, OT_POST_INCLUDE, "", 1);
   if (!(arg->flags & A1C_NO_NAMESPACE)) {
@@ -317,37 +518,40 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 	fclose(fp_h);
 
 	name_buf = alloca(strlen(expr->Identifier) + 3);
+  
+  if (!IS_SINGLE_UNIT(arg)) {
+    sprintf(name_buf, "%s.cpp", expr->Identifier);
+    if(identical_files(name_buf, tmpname_c)) {
+      c_retained = " (contents unchanged)";
+      unlink(tmpname_c);
+    } else {
+      if(rename(tmpname_c, name_buf)) {
+        unlink(tmpname_c);
+        perror(tmpname_c);
+        free(tmpname_c);
+        free(tmpname_h);
+        return -1;
+      }
+    }
 
-  sprintf(name_buf, "%s.cpp", expr->Identifier);
-	if(identical_files(name_buf, tmpname_c)) {
-		c_retained = " (contents unchanged)";
-		unlink(tmpname_c);
-	} else {
-		if(rename(tmpname_c, name_buf)) {
-			unlink(tmpname_c);
-			perror(tmpname_c);
-			free(tmpname_c);
-			free(tmpname_h);
-			return -1;
-		}
-	}
+    sprintf(name_buf, "%s.hpp", expr->Identifier);
+    if(identical_files(name_buf, tmpname_h)) {
+      h_retained = " (contents unchanged)";
+      unlink(tmpname_h);
+    } else {
+      if(rename(tmpname_h, name_buf)) {
+        unlink(tmpname_h);
+        perror(tmpname_h);
+        free(tmpname_c);
+        free(tmpname_h);
+        return -1;
+      }
+    }
+    
+  }
 
-  sprintf(name_buf, "%s.hpp", expr->Identifier);
-	if(identical_files(name_buf, tmpname_h)) {
-		h_retained = " (contents unchanged)";
-		unlink(tmpname_h);
-	} else {
-		if(rename(tmpname_h, name_buf)) {
-			unlink(tmpname_h);
-			perror(tmpname_h);
-			free(tmpname_c);
-			free(tmpname_h);
-			return -1;
-		}
-	}
-
-	free(tmpname_c);
-	free(tmpname_h);
+  free(tmpname_c);
+  free(tmpname_h);
 
 	fprintf(stderr, "Compiled %s.cpp%s\n",
 		expr->Identifier, c_retained);
