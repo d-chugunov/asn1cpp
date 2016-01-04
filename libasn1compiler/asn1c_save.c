@@ -28,7 +28,8 @@ static int include_type_to_pdu_collection(arg_t *arg);
 static void pdu_collection_print_unused_types(arg_t *arg);
 static const char *generate_pdu_C_definition(void);
 
-int wasIncludePrinted = 0;
+static const char* single_unit_filename = "asn";
+static FILE *single_unit_fp_c, *single_unit_fp_h;
 
 typedef struct TopSortGraphNode_s {
   asn1p_module_t* module;
@@ -219,14 +220,85 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
   //  printf("\n");
   //  
   //  exit(0);
+    
+    char *single_unit_tmpname_c, *single_unit_tmpname_h;
+    char *name_buf;
+    const char *c_retained = "";
+    const char *h_retained = "";
+    
+    FILE *fp_h;
+    
+    single_unit_fp_c = asn1c_open_file(single_unit_filename, ".cpp", &single_unit_tmpname_c);
+    fp_h = single_unit_fp_h = asn1c_open_file(single_unit_filename, ".hpp", &single_unit_tmpname_h);
+    
+    if(single_unit_fp_c == NULL || single_unit_fp_h == NULL) {
+      if(single_unit_fp_c) { unlink(single_unit_tmpname_c); free(single_unit_tmpname_c); fclose(single_unit_fp_c); }
+      if(single_unit_fp_h) { unlink(single_unit_tmpname_h); free(single_unit_tmpname_h); fclose(single_unit_fp_h); }
+      return -1;
+    }
 
+    arg->expr = 0;
+    generate_preamble(arg, single_unit_fp_c, optc, argv);
+    generate_preamble(arg, single_unit_fp_h, optc, argv);
+    
+    HINCLUDE("AsnAbstractType.hpp");
+    fprintf(single_unit_fp_c, "#include \"%s.hpp\"\n\n", single_unit_filename);
+    
+    //generate code for types according with respect of top sort results
     for (i = 0; i < topSortGraphNodesCount; ++i) {
       arg->expr = topSortGraphNodes[topSortResult[i]].expr;
       if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
-        if(asn1c_dump_streams(arg, deps, optc, argv))
+        if(asn1c_dump_streams(arg, deps, optc, argv)) {
+          unlink(single_unit_tmpname_c);
+          unlink(single_unit_tmpname_h);
+          free(single_unit_tmpname_c);
+          free(single_unit_tmpname_h);
+          fclose(single_unit_fp_c);
+          fclose(single_unit_fp_h);
           return -1;
+        }
       }
     }
+    
+    fclose(single_unit_fp_c);
+    fclose(single_unit_fp_h);
+    
+    name_buf = alloca(strlen(single_unit_filename) + 5);
+    
+    sprintf(name_buf, "%s.cpp", single_unit_filename);
+    if(identical_files(name_buf, single_unit_tmpname_c)) {
+      c_retained = " (contents unchanged)";
+      unlink(single_unit_tmpname_c);
+    } else {
+      if(rename(single_unit_tmpname_c, name_buf)) {
+        unlink(single_unit_tmpname_c);
+        perror(single_unit_tmpname_c);
+        free(single_unit_tmpname_c);
+        free(single_unit_tmpname_h);
+        return -1;
+      }
+    }
+
+    sprintf(name_buf, "%s.hpp", single_unit_filename);
+    if(identical_files(name_buf, single_unit_tmpname_h)) {
+      h_retained = " (contents unchanged)";
+      unlink(single_unit_tmpname_h);
+    } else {
+      if(rename(single_unit_tmpname_h, name_buf)) {
+        unlink(single_unit_tmpname_h);
+        perror(single_unit_tmpname_h);
+        free(single_unit_tmpname_c);
+        free(single_unit_tmpname_h);
+        return -1;
+      }
+    }
+    
+    free(single_unit_tmpname_c);
+    free(single_unit_tmpname_h);
+    
+    fprintf(stderr, "Compiled %s.cpp%s\n", single_unit_filename, c_retained);
+    fprintf(stderr, "Compiled %s.hpp%s\n", single_unit_filename, h_retained);
+    
   } else {
     TQ_FOR(mod, &(arg->asn->modules), mod_next) {
       TQ_FOR(arg->expr, &(mod->members), next) {
@@ -407,7 +479,7 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 	compiler_streams_t *cs = expr->data;
 	out_chunk_t *ot;
 	FILE *fp_c, *fp_h;
-	char *tmpname_c, *tmpname_h;
+	char *tmpname_c = 0, *tmpname_h = 0;
 	char *name_buf;
 	const char *c_retained = "";
 	const char *h_retained = "";
@@ -418,26 +490,19 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 		return -1;
 	}
   if (!IS_SINGLE_UNIT(arg)) {
-  fp_c = asn1c_open_file(expr->Identifier, ".cpp", &tmpname_c);
-  fp_h = asn1c_open_file(expr->Identifier, ".hpp", &tmpname_h);
-  } else {
-    fp_c = fopen("TestOneFile.cpp", "a");
-    tmpname_c = strdup("TestOneFile.cpp");
-    fp_h = fopen("TestOneFile.hpp", "a");
-    tmpname_h = strdup("TestOneFile.hpp");
-    if (!wasIncludePrinted) {
-      HINCLUDE("AsnAbstractType.hpp");
-      fprintf(fp_c, "#include \"TestOneFile.hpp\"\n\n");
-      wasIncludePrinted = 1;
+    fp_c = asn1c_open_file(expr->Identifier, ".cpp", &tmpname_c);
+    fp_h = asn1c_open_file(expr->Identifier, ".hpp", &tmpname_h);
+    
+    if(fp_c == NULL || fp_h == NULL) {
+      if(fp_c) { unlink(tmpname_c); free(tmpname_c); fclose(fp_c); }
+      if(fp_h) { unlink(tmpname_h); free(tmpname_h); fclose(fp_h); }
+      return -1;
     }
+  } else {
+    fp_c = single_unit_fp_c;
+    fp_h = single_unit_fp_h;
   }
           
-	if(fp_c == NULL || fp_h == NULL) {
-		if(fp_c) { unlink(tmpname_c); free(tmpname_c); fclose(fp_c); }
-		if(fp_h) { unlink(tmpname_h); free(tmpname_h); fclose(fp_h); }
-		return -1;
-	}
-
 	generate_preamble(arg, fp_c, optc, argv);
 	generate_preamble(arg, fp_h, optc, argv);
   
@@ -514,12 +579,12 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 
 	assert(OT_MAX == 11);	/* Protection from reckless changes */
 
-	fclose(fp_c);
-	fclose(fp_h);
-
-	name_buf = alloca(strlen(expr->Identifier) + 3);
-  
   if (!IS_SINGLE_UNIT(arg)) {
+    fclose(fp_c);
+  	fclose(fp_h);
+    
+    name_buf = alloca(strlen(expr->Identifier) + 5);
+    
     sprintf(name_buf, "%s.cpp", expr->Identifier);
     if(identical_files(name_buf, tmpname_c)) {
       c_retained = " (contents unchanged)";
@@ -548,16 +613,22 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
       }
     }
     
+    fprintf(stderr, "Compiled %s.cpp%s\n", expr->Identifier, c_retained);
+    fprintf(stderr, "Compiled %s.hpp%s\n", expr->Identifier, h_retained);
+    
+    free(tmpname_c);
+    free(tmpname_h);
+  } else {
+    fprintf(stderr, "Compiled %s\n", expr->Identifier);
   }
 
-  free(tmpname_c);
-  free(tmpname_h);
-
-	fprintf(stderr, "Compiled %s.cpp%s\n",
-		expr->Identifier, c_retained);
-	fprintf(stderr, "Compiled %s.hpp%s\n",
-		expr->Identifier, h_retained);
 	return 0;
+}
+
+void asn1c_set_single_unit(const char* filename) {
+  if ('=' == filename[0]) {
+    single_unit_filename = filename + 1;
+  }
 }
 
 #define ASN1C_VERSION "0.9.24"
@@ -566,11 +637,19 @@ static int
 generate_preamble(arg_t *arg, FILE *fp, int optc, char **argv) {
 	fprintf(fp,
 	"/*\n"
-	" * Generated by asn1cpp-" VERSION " which is based on asn1c-" ASN1C_VERSION " (http://lionet.info/asn1c)\n"
-	" * From ASN.1 module \"%s\"\n"
-	" * \tfound in \"%s\"\n",
-		arg->expr->module->ModuleName,
-		arg->expr->module->source_file_name);
+	" * Generated by asn1cpp-" VERSION " which is based on asn1c-" ASN1C_VERSION " (http://lionet.info/asn1c)\n");
+  if (arg->expr) {
+    fprintf(fp, " * From ASN.1 module \"%s\"\n"
+      " * \tfound in \"%s\"\n",
+        arg->expr->module->ModuleName,
+        arg->expr->module->source_file_name);
+  } else {
+    asn1p_module_t* module;
+    fprintf(fp, " * From ASN.1 modules:\n");
+    TQ_FOR(module, &(arg->asn->modules), mod_next) {
+      fprintf(fp, " * \t%s found in %s\n", module->ModuleName, module->source_file_name);
+    }
+  }
 	if(optc >= 1) {
 		int i;
 		fprintf(fp, " * \t`asn1cpp ");

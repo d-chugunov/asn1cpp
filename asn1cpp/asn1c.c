@@ -33,6 +33,7 @@
  * It uses them in turn to parse, fix and then compile or print the ASN.1 tree.
  */
 #include "sys-common.h"
+#include <asn1c_save.h>
 
 #undef  COPYRIGHT
 #define COPYRIGHT       \
@@ -120,8 +121,9 @@ main(int ac, char **av) {
       asn1_compiler_flags |= A1C_PTR_CHOICE_GETTERS;
     } else if(strcmp(optarg, "short-ifdef") == 0) {
       asn1_compiler_flags |= A1C_SHORT_IFDEF;
-    } else if(strncmp(optarg, "single-unit", 11) == 0) {
+    } else if(strncmp(optarg, "single-unit", 11) == 0 && (optarg[11] == '=' || optarg[11] == '\0')) {
       asn1_compiler_flags |= A1C_SINGLE_UNIT;
+      asn1c_set_single_unit(optarg + 11);
     } else {
 			fprintf(stderr, "-f%s: Invalid argument\n", optarg);
 			exit(EX_USAGE);
