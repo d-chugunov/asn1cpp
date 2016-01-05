@@ -240,6 +240,18 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
     generate_preamble(arg, single_unit_fp_c, optc, argv);
     generate_preamble(arg, single_unit_fp_h, optc, argv);
     
+#define IDENTIFIER_FOR_IFDEF()                                                \
+    do {                                                                      \
+      fprintf(fp_h, "_%s_HPP_", single_unit_filename);                        \
+    } while (0)
+    
+    fprintf(single_unit_fp_h, "#ifndef\t");
+    IDENTIFIER_FOR_IFDEF();
+    fprintf(single_unit_fp_h, "\n");
+    fprintf(single_unit_fp_h, "#define\t");
+    IDENTIFIER_FOR_IFDEF();
+    fprintf(single_unit_fp_h, "\n\n");
+    
     HINCLUDE("AsnAbstractType.hpp");
     fprintf(single_unit_fp_c, "#include \"%s.hpp\"\n\n", single_unit_filename);
     
@@ -258,6 +270,12 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
         }
       }
     }
+    
+    fprintf(single_unit_fp_h, "\n#endif\t/* ");
+    IDENTIFIER_FOR_IFDEF();
+    fprintf(single_unit_fp_h, " */\n");
+    
+#undef IDENTIFIER_FOR_IFDEF
     
     fclose(single_unit_fp_c);
     fclose(single_unit_fp_h);
@@ -325,25 +343,33 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
 	}
 
 	fprintf(mkf, "ASN_MODULE_SOURCES=");
-	TQ_FOR(mod, &(arg->asn->modules), mod_next) {
-		TQ_FOR(arg->expr, &(mod->members), next) {
-			if(asn1_lang_map[arg->expr->meta_type]
-				[arg->expr->expr_type].type_cb) {
-				fprintf(mkf, "\t\\\n\t%s.cpp",
-				arg->expr->Identifier);
-			}
-		}
-	}
+  if (IS_SINGLE_UNIT(arg)) {
+    fprintf(mkf, "%s.cpp", single_unit_filename);
+  } else {
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type]
+          [arg->expr->expr_type].type_cb) {
+          fprintf(mkf, "\t\\\n\t%s.cpp",
+          arg->expr->Identifier);
+        }
+      }
+    }
+  }
 	fprintf(mkf, "\n\nASN_MODULE_HEADERS=");
-	TQ_FOR(mod, &(arg->asn->modules), mod_next) {
-		TQ_FOR(arg->expr, &(mod->members), next) {
-			if(asn1_lang_map[arg->expr->meta_type]
-				[arg->expr->expr_type].type_cb) {
-				fprintf(mkf, "\t\\\n\t%s.hpp",
-				arg->expr->Identifier);
-			}
-		}
-	}
+  if (IS_SINGLE_UNIT(arg)) {
+    fprintf(mkf, "%s.hpp", single_unit_filename);
+  } else {
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type]
+          [arg->expr->expr_type].type_cb) {
+          fprintf(mkf, "\t\\\n\t%s.hpp",
+          arg->expr->Identifier);
+        }
+      }
+    }
+  }
 	fprintf(mkf, "\n\n");
 
 	/*
@@ -501,21 +527,22 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
     fp_c = single_unit_fp_c;
     fp_h = single_unit_fp_h;
   }
-          
-	generate_preamble(arg, fp_c, optc, argv);
-	generate_preamble(arg, fp_h, optc, argv);
   
 #define IDENTIFIER_FOR_IFDEF(expr)                                            \
   if (!(arg->flags & A1C_SHORT_IFDEF))                                        \
     fprintf(fp_h, "_%s", asn1c_make_namespace_name(arg, expr, 0));            \
   fprintf(fp_h, "_%s_HPP_", asn1c_make_identifier(0, expr, (char*)NULL));
-
-	fprintf(fp_h, "#ifndef\t");
-  IDENTIFIER_FOR_IFDEF(expr);
-	fprintf(fp_h, "\n");
-	fprintf(fp_h, "#define\t");
-  IDENTIFIER_FOR_IFDEF(expr);
-	fprintf(fp_h, "\n\n");
+          
+  if (!IS_SINGLE_UNIT(arg)) {
+    generate_preamble(arg, fp_c, optc, argv);
+    generate_preamble(arg, fp_h, optc, argv);
+    fprintf(fp_h, "#ifndef\t");
+    IDENTIFIER_FOR_IFDEF(expr);
+    fprintf(fp_h, "\n");
+    fprintf(fp_h, "#define\t");
+    IDENTIFIER_FOR_IFDEF(expr);
+    fprintf(fp_h, "\n\n");
+  }
 
 	//fprintf(fp_h, "\n");
 	//HINCLUDE("asn_application.hpp");
@@ -550,9 +577,11 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 	if(!(arg->flags & A1C_NO_INCLUDE_DEPS))
 	SAVE_STREAM(fp_h, OT_POST_INCLUDE, "Referred external types", 1);
 
-	fprintf(fp_h, "\n#endif\t/* ");
-  IDENTIFIER_FOR_IFDEF(expr);
-  fprintf(fp_h, " */\n");
+  if (!IS_SINGLE_UNIT(arg)) {
+    fprintf(fp_h, "\n#endif\t/* ");
+    IDENTIFIER_FOR_IFDEF(expr);
+    fprintf(fp_h, " */\n");
+  }
   
 #undef IDENTIFIER_FOR_IFDEF
 
@@ -646,7 +675,9 @@ generate_preamble(arg_t *arg, FILE *fp, int optc, char **argv) {
     asn1p_module_t* module;
     fprintf(fp, " * From ASN.1 modules:\n");
     TQ_FOR(module, &(arg->asn->modules), mod_next) {
-      fprintf(fp, " * \t%s found in %s\n", module->ModuleName, module->source_file_name);
+      if (module->_tags != MT_STANDARD_MODULE) {
+        fprintf(fp, " * \t%s found in \"%s\"\n", module->ModuleName, module->source_file_name);
+      }
     }
   }
 	if(optc >= 1) {
