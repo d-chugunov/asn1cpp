@@ -269,6 +269,7 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
           static const int idx = OT_INCLUDES;
           out_chunk_t *ot;
           TQ_FOR(ot, &(cs->destination[idx].chunks), next) {
+            asn1c_activate_dependency(deps, 0, ot->buf);
             int isNewDependency = 1;
             size_t i;
             for (i = 0; i < addedDepenciesCount; ++i) {
