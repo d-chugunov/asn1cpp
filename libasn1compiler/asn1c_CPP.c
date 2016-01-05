@@ -4819,8 +4819,8 @@ emit_include_dependencies(arg_t *arg) {
         } else {
           GEN_INCLUDE(asn1c_type_name(arg,
             memb, TNF_INCLUDE));
-        }
-      }
+    }
+	}
     }
 	}
 

@@ -255,6 +255,51 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
     HINCLUDE("AsnAbstractType.hpp");
     fprintf(single_unit_fp_c, "#include \"%s.hpp\"\n\n", single_unit_filename);
     
+    //including external dependencies
+    {
+      char** addedDepencies = NULL;
+      size_t addedDepenciesCount = 0, addedDepenciesAlloced = 0;
+      int wasIncludingExternalDependenciesMsgPrinted = 0;
+      for (i = 0; i < topSortGraphNodesCount; ++i) {
+        asn1p_expr_t *expr = arg->expr = topSortGraphNodes[topSortResult[i]].expr;
+        if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
+          compiler_streams_t *cs = expr->data;
+          if (!cs)
+            continue;
+          static const int idx = OT_INCLUDES;
+          out_chunk_t *ot;
+          TQ_FOR(ot, &(cs->destination[idx].chunks), next) {
+            int isNewDependency = 1;
+            size_t i;
+            for (i = 0; i < addedDepenciesCount; ++i) {
+              if (0 == strncmp(addedDepencies[i], ot->buf, ot->len)) {
+                isNewDependency = 0;
+                break;
+              }
+            }
+            if (isNewDependency) {
+              if (!wasIncludingExternalDependenciesMsgPrinted) {
+                fprintf(single_unit_fp_h, "\n/* Including external dependencies */\n");
+                wasIncludingExternalDependenciesMsgPrinted = 1;
+              }
+              fwrite(ot->buf, ot->len, 1, single_unit_fp_h);
+              if (addedDepenciesCount == addedDepenciesAlloced) {
+                addedDepenciesAlloced = addedDepenciesAlloced ? addedDepenciesAlloced << 1 : 1;
+                addedDepencies = realloc(addedDepencies, addedDepenciesAlloced * sizeof(addedDepencies[0]));
+              }
+              addedDepencies[addedDepenciesCount] = strndup(ot->buf, ot->len);
+              ++addedDepenciesCount;
+            }
+          }
+        }
+      }
+      size_t i;
+      for (i = 0; i < addedDepenciesCount; ++i) {
+        free(addedDepencies[i]);
+      }
+      free(addedDepencies);
+    }
+    
     //generate code for types according with respect of top sort results
     for (i = 0; i < topSortGraphNodesCount; ++i) {
       arg->expr = topSortGraphNodes[topSortResult[i]].expr;
@@ -556,8 +601,10 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 		fwrite(ot->buf, ot->len, 1, fp);			\
 	}								\
 } while(0)
-
-	SAVE_STREAM(fp_h, OT_INCLUDES,	"Including external dependencies", 1);
+  
+  if (!IS_SINGLE_UNIT(arg)) {
+    SAVE_STREAM(fp_h, OT_INCLUDES,	"Including external dependencies", 1);
+  }
 
 	//fprintf(fp_h, "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n");
 
