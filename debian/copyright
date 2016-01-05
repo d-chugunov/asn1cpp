@@ -4,7 +4,7 @@ Upstream-Author: Dmitriy Chugunov <chugunovdima@gmail.com>
 Source: 
 
 Files: *
-Copyright: (c) 2014-2015 Dmitriy Chugunov <chugunovdima@gmail.com>
+Copyright: (c) 2014-2016 Dmitriy Chugunov <chugunovdima@gmail.com>
 License: BSD-2-Clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -29,7 +29,7 @@ License: BSD-2-Clause
  SUCH DAMAGE.
 
 Files: debian/*
-Copyright: 2014-2015 Dmitriy Chugunov <chugunovdima@gmail.com>
+Copyright: 2014-2016 Dmitriy Chugunov <chugunovdima@gmail.com>
 License: GPL-2+
  This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public
