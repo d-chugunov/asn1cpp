@@ -26,6 +26,7 @@ target language (C++) encoders and decoders for BER and DER. Generated code uses
 \fB\-fbless-SIZE \-fcompound-names \-fdirect-choice
 .BI "\-fknown-extern-type="<name>
 \fB\-fno-constraints \-fno-include-deps \-fwide-types \-fno-namespace \-finsecure-pointers \-fno-switch \-fptr-choice-getters
+.BI "\-fsingle-unit"[=<name>]
 .TP
 \fICodecs Generation Options\fR
 .br
@@ -125,6 +126,9 @@ Use pointers instead of references as return types of getters of classes for CHO
 .TP
 .B \-fshort-ifdef
 Use short form (without module name) of #ifdef directive in *.hpp files.
+.TP
+.BI "\-fknown-extern-type"[=<name>]
+Generate single translation unit (with given name if specified) for entire ASN.1-file instead of generating a translation unit for each type in ASN.1-file.
 .SH CODECS GENERATION OPTIONS
 .TP
 .B \-pdu=\fR{\fBall\fR|\fBauto\fR|\fIType\fR}

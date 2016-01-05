@@ -222,6 +222,11 @@ main(int ac, char **av) {
 			exit(EX_USAGE);
 		}
 	}
+  
+  if ((asn1_compiler_flags & A1C_SHORT_IFDEF) && (asn1_compiler_flags & A1C_SINGLE_UNIT)) {
+    fprintf(stderr, "Options -fshort-ifdef and -fsingle-unit cannot be used at the same time.\n");
+    exit(EX_USAGE);
+  }
 
 	/*
 	 * Ensure that there are some input files present.
@@ -489,6 +494,7 @@ usage(const char *av0) {
 "  -fno-switch           Use member tables instead of switch for getting pointer to member by index.\n"
 "  -fptr-choice-getters  Use pointers instead of references as return types of getters of classes for CHOICE.\n"
 "  -fshort-ifdef         Use short form (without module name) of #ifdef directive in *.hpp files.\n"
+"  -fsingle-unit=<name>  Generate single translation unit (with given name if specified) for entire  ASN.1-file  instead  of generating a translation unit for each type in ASN.1-file.\n"
 "\n"
 
 //"  -gen-PER              Generate PER support code\n"
