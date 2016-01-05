@@ -6,7 +6,12 @@
 #include <assert.h>
 #include <iostream>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <T1.hpp>
+#endif
+
 
 using namespace ModuleTestTags3;
 

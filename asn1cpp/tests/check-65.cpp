@@ -5,8 +5,12 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <T.hpp>
 #include <T1.hpp>
+#endif
 
 using namespace ModuleTestMultipleTags;
 

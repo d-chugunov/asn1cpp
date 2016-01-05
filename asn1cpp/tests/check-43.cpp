@@ -5,8 +5,12 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <Test-structure-1.hpp>
 #include <Choice-1.hpp>
+#endif
 
 using namespace ModuleRecursion;
 

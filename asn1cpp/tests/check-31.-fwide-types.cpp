@@ -6,7 +6,11 @@
 #include <assert.h>
 #include <iostream>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <Forest.hpp>
+#endif
 
 using namespace ModuleTestSetOfSimple;
 

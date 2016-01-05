@@ -175,11 +175,11 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
             asn1p_expr_t* ref_expr = asn1f_lookup_symbol_ex(arg->asn, arg->expr, arg->expr->reference);
             if (!ref_expr) {
               fprintf(stderr, "Cannot find terminal type by reference %s:%s.\n", arg->expr->module->ModuleName, arg->expr->Identifier);
-              exit(1);
+            } else {
+              size_t refVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                      &topSortGraphNodesAlloced, ref_expr->module, ref_expr);
+              top_sort_add_edge(&topSortGraphNodes[refVertex], currentVertex, topSortGraphNodes);
             }
-            size_t refVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
-                    &topSortGraphNodesAlloced, ref_expr->module, ref_expr);
-            top_sort_add_edge(&topSortGraphNodes[refVertex], currentVertex, topSortGraphNodes);
           }
           //create edges for all members
           asn1p_expr_t *memb;
@@ -193,7 +193,6 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
                 asn1p_expr_t* ref_expr = asn1f_lookup_symbol_ex(arg->asn, expr, expr->reference);
                 if (!ref_expr) {
                   fprintf(stderr, "Cannot find terminal type by reference %s:%s.\n", expr->module->ModuleName, expr->Identifier);
-                  exit(1);
                 } else {
                   expr = ref_expr;
                 }

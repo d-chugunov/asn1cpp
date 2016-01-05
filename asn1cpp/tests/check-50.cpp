@@ -5,10 +5,14 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <Int5.hpp>
 #include <Str4.hpp>
 #include <Utf8-4.hpp>
 #include <VisibleIdentifier.hpp>
+#endif
 
 int
 main(int ac, char **av) {

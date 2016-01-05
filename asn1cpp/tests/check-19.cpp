@@ -5,7 +5,11 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <Name.hpp>
+#endif
 
 int
 main(int ac, char **av) {

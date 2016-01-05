@@ -8,9 +8,13 @@
 #include <assert.h>
 #include <errno.h>
 #include <iostream>
-
-#include <T.hpp>
 #include <memory>
+
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
+#include <T.hpp>
+#endif
 
 using namespace ModuleTestANYSyntax;
 

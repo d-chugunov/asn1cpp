@@ -124,6 +124,7 @@ main(int ac, char **av) {
     } else if(strncmp(optarg, "single-unit", 11) == 0 && (optarg[11] == '=' || optarg[11] == '\0')) {
       asn1_compiler_flags |= A1C_SINGLE_UNIT;
       asn1c_set_single_unit(optarg + 11);
+      asn1f_set_single_unit();
     } else {
 			fprintf(stderr, "-f%s: Invalid argument\n", optarg);
 			exit(EX_USAGE);

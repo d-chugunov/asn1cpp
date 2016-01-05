@@ -5,9 +5,13 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <Programming.hpp>
 #include <SeqWithMandatory.hpp>
 #include <SeqWithOptional.hpp>
+#endif
 
 using namespace ModuleTestSequenceSimple;
 

@@ -34,4 +34,6 @@ int asn1f_process(asn1p_t *_asn,
  */
 int asn1f_make_known_external_type(const char *);
 
+void asn1f_set_single_unit(void);
+
 #endif	/* ASN1FIX_H */

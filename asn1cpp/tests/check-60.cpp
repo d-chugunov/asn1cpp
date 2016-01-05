@@ -5,10 +5,14 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <iostream>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <T1.hpp>
 #include <T2.hpp>
-#include <iostream>
+#endif
 
 using namespace ModuleTestANY;
 
