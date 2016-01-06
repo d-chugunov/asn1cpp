@@ -1,4 +1,4 @@
-AC_INIT([asn1cpp], [0.3.2], [chugunovdima@gmail.com])
+AC_INIT([asn1cpp], [0.4.0], [chugunovdima@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
