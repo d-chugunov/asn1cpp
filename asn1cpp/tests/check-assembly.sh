@@ -87,5 +87,7 @@ check ${testdir}-insecure-ptrs-no-switch "-finsecure-pointers -fno-switch" "-DIN
 cd ..
 check ${testdir}-secure-ptrs-ptr-choice-getters "-fptr-choice-getters" "-DDEBUG -DPTR_CHOICE_GETTERS"
 cd ..
+check ${testdir}-single-unit "-fsingle-unit" "-DDEBUG -DSINGLE_UNIT"
+cd ..
 
 exit 0

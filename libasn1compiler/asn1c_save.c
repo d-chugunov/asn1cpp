@@ -5,6 +5,7 @@
 #include "asn1c_misc.h"
 #include "asn1c_save.h"
 #include "asn1c_out.h"
+#include "../libasn1fix/asn1fix_export.h"
 
 #ifndef HAVE_SYMLINK
 #define symlink(a,b) (errno=ENOSYS, -1)
@@ -27,6 +28,123 @@ static int include_type_to_pdu_collection(arg_t *arg);
 static void pdu_collection_print_unused_types(arg_t *arg);
 static const char *generate_pdu_C_definition(void);
 
+static const char* single_unit_filename = "asn";
+static FILE *single_unit_fp_c, *single_unit_fp_h;
+
+typedef struct TopSortGraphNode_s {
+  asn1p_module_t* module;
+  asn1p_expr_t* expr;
+  size_t* edges;
+  size_t edgesCount;
+  size_t edgesAlloced;
+} TopSortGraphNode;
+
+static size_t
+top_sort_find_vertex(arg_t *arg, TopSortGraphNode** vertices, size_t* verticesCount,
+        size_t* verticesAlloced, asn1p_module_t* module, asn1p_expr_t* expr)
+{
+  if (*verticesCount) {
+    TopSortGraphNode* verticesArr = *vertices;
+    size_t i;
+    for (i = 0; i < *verticesCount; ++i) {
+      if (0 == strcmp(verticesArr[i].module->ModuleName, module->ModuleName) &&
+              0 == strcmp(verticesArr[i].expr->Identifier, expr->Identifier))
+      {
+        return i;
+      }
+    }
+  }
+  //vertex was not found => create new
+  
+  if (*verticesCount == *verticesAlloced) {
+    //should do realloc
+    *verticesAlloced = *verticesAlloced ? (*verticesAlloced) << 1 : 1;
+    *vertices = realloc(*vertices, *verticesAlloced * sizeof(**vertices));
+    if (!*vertices) {
+      fprintf(stderr, "Unable to realloc memory for top sort graph.\n");
+      exit(1);
+    }
+  }
+  TopSortGraphNode* newNode = (*vertices) + *verticesCount;
+  memset(newNode, 0, sizeof(*newNode));
+  newNode->module = module;
+  newNode->expr = expr;
+//  fprintf(stderr, "Adding vertex %s:%s with index %zu\n", module->ModuleName, expr->Identifier, *verticesCount);
+  ++(*verticesCount);
+  return (*verticesCount) - 1;
+}
+
+static void
+top_sort_add_edge(TopSortGraphNode* node, size_t edgeTo, TopSortGraphNode* nodes) {
+  size_t i;
+  for (i = 0; i < node->edgesCount; ++i) {
+    if (node->edges[i] == edgeTo)
+      return;
+  }
+  if (node->edgesCount == node->edgesAlloced) {
+    node->edgesAlloced = node->edgesAlloced ? (node->edgesAlloced) << 1 : 1;
+    node->edges = realloc(node->edges, node->edgesAlloced * sizeof(*node->edges));
+    if (!node->edges) {
+      fprintf(stderr, "Unable to realloc memory for edges of top sort graph.\n");
+      exit(1);
+    }
+  }
+  node->edges[node->edgesCount] = edgeTo;
+//  fprintf(stderr, "Adding vertex between vertex %s:%s and vertex %s:%s\n", node->module->ModuleName, node->expr->Identifier, nodes[edgeTo].module->ModuleName, nodes[edgeTo].expr->Identifier);
+  ++node->edgesCount;
+}
+
+static int
+is_module_member(asn1p_t* asn, asn1p_expr_t* expr) {
+  asn1p_expr_t* moduleExpr;
+  asn1p_module_t *mod;
+  TQ_FOR(mod, &(asn->modules), mod_next) {
+		TQ_FOR(moduleExpr, &(mod->members), next) {
+      if (moduleExpr == expr) {
+        return 1;
+      }
+		}
+	}
+  return 0;
+}
+
+static void
+top_sort_dfs(TopSortGraphNode* nodes, size_t nodeIndex, uint8_t* used,
+        size_t* resultList, size_t* currentIndexInList)
+{
+  used[nodeIndex] = 1;
+  size_t i;
+  TopSortGraphNode* node = nodes + nodeIndex;
+  for (i = 0; i < node->edgesCount; ++i) {
+    size_t to = node->edges[i];
+    if (!used[to]) {
+      top_sort_dfs(nodes, to, used, resultList, currentIndexInList);
+    }
+  }
+  resultList[*currentIndexInList] = nodeIndex;
+  ++(*currentIndexInList);
+}
+
+static void
+top_sort(TopSortGraphNode* nodes, size_t nodesCount, size_t* resultList) {
+  size_t currentIndexInList = 0;
+  uint8_t* used = calloc(nodesCount, sizeof(uint8_t));
+  int i;
+  for (i = 0; i < nodesCount; ++i) {
+    if (!used[i]) {
+      top_sort_dfs(nodes, i, used, resultList, &currentIndexInList);
+    }
+  }
+  free(used);
+  for (i = 0; i < nodesCount / 2; ++i) {
+    size_t t = resultList[i];
+    resultList[i] = resultList[nodesCount - 1 - i];
+    resultList[nodesCount - 1 - i] = t;
+  }
+}
+
+#define IS_SINGLE_UNIT(arg) (arg->flags & A1C_SINGLE_UNIT)
+
 int
 asn1c_save_compiled_output(arg_t *arg, const char *datadir,
 		int argc, int optc, char **argv) {
@@ -41,16 +159,220 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
 		WARNING("Cannot read file-dependencies information "
 			"from %s\n", datadir);
 	}
+  
+  if (IS_SINGLE_UNIT(arg)) {
+    TopSortGraphNode* topSortGraphNodes = 0;
+    size_t topSortGraphNodesCount = 0, topSortGraphNodesAlloced = 0;
 
-	TQ_FOR(mod, &(arg->asn->modules), mod_next) {
-		TQ_FOR(arg->expr, &(mod->members), next) {
-			if(asn1_lang_map[arg->expr->meta_type]
-				[arg->expr->expr_type].type_cb) {
-				if(asn1c_dump_streams(arg, deps, optc, argv))
-					return -1;
-			}
-		}
-	}
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
+          //find index of current vertex
+          size_t currentVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                  &topSortGraphNodesAlloced, mod, arg->expr);
+          //create edge for reference
+          if (arg->expr->meta_type == AMT_TYPEREF) {
+            asn1p_expr_t* ref_expr = asn1f_lookup_symbol_ex(arg->asn, arg->expr, arg->expr->reference);
+            if (!ref_expr) {
+              fprintf(stderr, "Cannot find terminal type by reference %s:%s.\n", arg->expr->module->ModuleName, arg->expr->Identifier);
+            } else {
+              size_t refVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                      &topSortGraphNodesAlloced, ref_expr->module, ref_expr);
+              top_sort_add_edge(&topSortGraphNodes[refVertex], currentVertex, topSortGraphNodes);
+            }
+          }
+          //create edges for all members
+          asn1p_expr_t *memb;
+          TQ_FOR(memb, &(arg->expr->members), next) {
+            if((!(memb->expr_type & ASN_CONSTR_MASK) && memb->expr_type > ASN_CONSTR_MASK)
+              || memb->meta_type == AMT_TYPEREF)
+            {
+              asn1p_expr_t* expr = memb;
+              //find index of member vertex
+              if (expr->meta_type == AMT_TYPEREF) {
+                asn1p_expr_t* ref_expr = asn1f_lookup_symbol_ex(arg->asn, expr, expr->reference);
+                if (!ref_expr) {
+                  fprintf(stderr, "Cannot find terminal type by reference %s:%s.\n", expr->module->ModuleName, expr->Identifier);
+                } else {
+                  expr = ref_expr;
+                }
+              }
+              if (!is_module_member(arg->asn, expr))
+                continue;
+              size_t memberVertex = top_sort_find_vertex(arg, &topSortGraphNodes, &topSortGraphNodesCount,
+                  &topSortGraphNodesAlloced, expr->module, expr);
+              //make edge between member vertex and current vertex
+              top_sort_add_edge(&topSortGraphNodes[memberVertex], currentVertex, topSortGraphNodes);
+            }
+          }
+        }
+      }
+    }
+
+    size_t* topSortResult = calloc(topSortGraphNodesCount, sizeof(size_t));
+
+    top_sort(topSortGraphNodes, topSortGraphNodesCount, topSortResult);
+
+  //  for (i = 0; i < topSortGraphNodesCount; ++i) {
+  //    printf("%zu ", topSortResult[i]);
+  //  }
+  //  printf("\n");
+  //  
+  //  exit(0);
+    
+    char *single_unit_tmpname_c, *single_unit_tmpname_h;
+    char *name_buf;
+    const char *c_retained = "";
+    const char *h_retained = "";
+    
+    FILE *fp_h;
+    
+    single_unit_fp_c = asn1c_open_file(single_unit_filename, ".cpp", &single_unit_tmpname_c);
+    fp_h = single_unit_fp_h = asn1c_open_file(single_unit_filename, ".hpp", &single_unit_tmpname_h);
+    
+    if(single_unit_fp_c == NULL || single_unit_fp_h == NULL) {
+      if(single_unit_fp_c) { unlink(single_unit_tmpname_c); free(single_unit_tmpname_c); fclose(single_unit_fp_c); }
+      if(single_unit_fp_h) { unlink(single_unit_tmpname_h); free(single_unit_tmpname_h); fclose(single_unit_fp_h); }
+      return -1;
+    }
+
+    arg->expr = 0;
+    generate_preamble(arg, single_unit_fp_c, optc, argv);
+    generate_preamble(arg, single_unit_fp_h, optc, argv);
+    
+#define IDENTIFIER_FOR_IFDEF()                                                \
+    do {                                                                      \
+      fprintf(fp_h, "_%s_HPP_", single_unit_filename);                        \
+    } while (0)
+    
+    fprintf(single_unit_fp_h, "#ifndef\t");
+    IDENTIFIER_FOR_IFDEF();
+    fprintf(single_unit_fp_h, "\n");
+    fprintf(single_unit_fp_h, "#define\t");
+    IDENTIFIER_FOR_IFDEF();
+    fprintf(single_unit_fp_h, "\n\n");
+    
+    HINCLUDE("AsnAbstractType.hpp");
+    fprintf(single_unit_fp_c, "#include \"%s.hpp\"\n\n", single_unit_filename);
+    
+    //including external dependencies
+    {
+      char** addedDepencies = NULL;
+      size_t addedDepenciesCount = 0, addedDepenciesAlloced = 0;
+      int wasIncludingExternalDependenciesMsgPrinted = 0;
+      for (i = 0; i < topSortGraphNodesCount; ++i) {
+        asn1p_expr_t *expr = arg->expr = topSortGraphNodes[topSortResult[i]].expr;
+        if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
+          compiler_streams_t *cs = expr->data;
+          if (!cs)
+            continue;
+          static const int idx = OT_INCLUDES;
+          out_chunk_t *ot;
+          TQ_FOR(ot, &(cs->destination[idx].chunks), next) {
+            asn1c_activate_dependency(deps, 0, ot->buf);
+            int isNewDependency = 1;
+            size_t i;
+            for (i = 0; i < addedDepenciesCount; ++i) {
+              if (0 == strncmp(addedDepencies[i], ot->buf, ot->len)) {
+                isNewDependency = 0;
+                break;
+              }
+            }
+            if (isNewDependency) {
+              if (!wasIncludingExternalDependenciesMsgPrinted) {
+                fprintf(single_unit_fp_h, "\n/* Including external dependencies */\n");
+                wasIncludingExternalDependenciesMsgPrinted = 1;
+              }
+              fwrite(ot->buf, ot->len, 1, single_unit_fp_h);
+              if (addedDepenciesCount == addedDepenciesAlloced) {
+                addedDepenciesAlloced = addedDepenciesAlloced ? addedDepenciesAlloced << 1 : 1;
+                addedDepencies = realloc(addedDepencies, addedDepenciesAlloced * sizeof(addedDepencies[0]));
+              }
+              addedDepencies[addedDepenciesCount] = strndup(ot->buf, ot->len);
+              ++addedDepenciesCount;
+            }
+          }
+        }
+      }
+      size_t i;
+      for (i = 0; i < addedDepenciesCount; ++i) {
+        free(addedDepencies[i]);
+      }
+      free(addedDepencies);
+    }
+    
+    //generate code for types according with respect of top sort results
+    for (i = 0; i < topSortGraphNodesCount; ++i) {
+      arg->expr = topSortGraphNodes[topSortResult[i]].expr;
+      if(asn1_lang_map[arg->expr->meta_type][arg->expr->expr_type].type_cb) {
+        if(asn1c_dump_streams(arg, deps, optc, argv)) {
+          unlink(single_unit_tmpname_c);
+          unlink(single_unit_tmpname_h);
+          free(single_unit_tmpname_c);
+          free(single_unit_tmpname_h);
+          fclose(single_unit_fp_c);
+          fclose(single_unit_fp_h);
+          return -1;
+        }
+      }
+    }
+    
+    fprintf(single_unit_fp_h, "\n#endif\t/* ");
+    IDENTIFIER_FOR_IFDEF();
+    fprintf(single_unit_fp_h, " */\n");
+    
+#undef IDENTIFIER_FOR_IFDEF
+    
+    fclose(single_unit_fp_c);
+    fclose(single_unit_fp_h);
+    
+    name_buf = alloca(strlen(single_unit_filename) + 5);
+    
+    sprintf(name_buf, "%s.cpp", single_unit_filename);
+    if(identical_files(name_buf, single_unit_tmpname_c)) {
+      c_retained = " (contents unchanged)";
+      unlink(single_unit_tmpname_c);
+    } else {
+      if(rename(single_unit_tmpname_c, name_buf)) {
+        unlink(single_unit_tmpname_c);
+        perror(single_unit_tmpname_c);
+        free(single_unit_tmpname_c);
+        free(single_unit_tmpname_h);
+        return -1;
+      }
+    }
+
+    sprintf(name_buf, "%s.hpp", single_unit_filename);
+    if(identical_files(name_buf, single_unit_tmpname_h)) {
+      h_retained = " (contents unchanged)";
+      unlink(single_unit_tmpname_h);
+    } else {
+      if(rename(single_unit_tmpname_h, name_buf)) {
+        unlink(single_unit_tmpname_h);
+        perror(single_unit_tmpname_h);
+        free(single_unit_tmpname_c);
+        free(single_unit_tmpname_h);
+        return -1;
+      }
+    }
+    
+    free(single_unit_tmpname_c);
+    free(single_unit_tmpname_h);
+    
+    fprintf(stderr, "Compiled %s.cpp%s\n", single_unit_filename, c_retained);
+    fprintf(stderr, "Compiled %s.hpp%s\n", single_unit_filename, h_retained);
+    
+  } else {
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type]
+          [arg->expr->expr_type].type_cb) {
+          if(asn1c_dump_streams(arg, deps, optc, argv))
+            return -1;
+        }
+      }
+    }
+  }
 
 	/*
 	 * Dump out the Makefile template and the rest of the support code.
@@ -67,25 +389,33 @@ asn1c_save_compiled_output(arg_t *arg, const char *datadir,
 	}
 
 	fprintf(mkf, "ASN_MODULE_SOURCES=");
-	TQ_FOR(mod, &(arg->asn->modules), mod_next) {
-		TQ_FOR(arg->expr, &(mod->members), next) {
-			if(asn1_lang_map[arg->expr->meta_type]
-				[arg->expr->expr_type].type_cb) {
-				fprintf(mkf, "\t\\\n\t%s.cpp",
-				arg->expr->Identifier);
-			}
-		}
-	}
+  if (IS_SINGLE_UNIT(arg)) {
+    fprintf(mkf, "%s.cpp", single_unit_filename);
+  } else {
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type]
+          [arg->expr->expr_type].type_cb) {
+          fprintf(mkf, "\t\\\n\t%s.cpp",
+          arg->expr->Identifier);
+        }
+      }
+    }
+  }
 	fprintf(mkf, "\n\nASN_MODULE_HEADERS=");
-	TQ_FOR(mod, &(arg->asn->modules), mod_next) {
-		TQ_FOR(arg->expr, &(mod->members), next) {
-			if(asn1_lang_map[arg->expr->meta_type]
-				[arg->expr->expr_type].type_cb) {
-				fprintf(mkf, "\t\\\n\t%s.hpp",
-				arg->expr->Identifier);
-			}
-		}
-	}
+  if (IS_SINGLE_UNIT(arg)) {
+    fprintf(mkf, "%s.hpp", single_unit_filename);
+  } else {
+    TQ_FOR(mod, &(arg->asn->modules), mod_next) {
+      TQ_FOR(arg->expr, &(mod->members), next) {
+        if(asn1_lang_map[arg->expr->meta_type]
+          [arg->expr->expr_type].type_cb) {
+          fprintf(mkf, "\t\\\n\t%s.hpp",
+          arg->expr->Identifier);
+        }
+      }
+    }
+  }
 	fprintf(mkf, "\n\n");
 
 	/*
@@ -220,7 +550,7 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 	compiler_streams_t *cs = expr->data;
 	out_chunk_t *ot;
 	FILE *fp_c, *fp_h;
-	char *tmpname_c, *tmpname_h;
+	char *tmpname_c = 0, *tmpname_h = 0;
 	char *name_buf;
 	const char *c_retained = "";
 	const char *h_retained = "";
@@ -230,29 +560,35 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 			expr->Identifier, expr->_lineno);
 		return -1;
 	}
-  fp_c = asn1c_open_file(expr->Identifier, ".cpp", &tmpname_c);
-  fp_h = asn1c_open_file(expr->Identifier, ".hpp", &tmpname_h);
-	
-	if(fp_c == NULL || fp_h == NULL) {
-		if(fp_c) { unlink(tmpname_c); free(tmpname_c); fclose(fp_c); }
-		if(fp_h) { unlink(tmpname_h); free(tmpname_h); fclose(fp_h); }
-		return -1;
-	}
-
-	generate_preamble(arg, fp_c, optc, argv);
-	generate_preamble(arg, fp_h, optc, argv);
+  if (!IS_SINGLE_UNIT(arg)) {
+    fp_c = asn1c_open_file(expr->Identifier, ".cpp", &tmpname_c);
+    fp_h = asn1c_open_file(expr->Identifier, ".hpp", &tmpname_h);
+    
+    if(fp_c == NULL || fp_h == NULL) {
+      if(fp_c) { unlink(tmpname_c); free(tmpname_c); fclose(fp_c); }
+      if(fp_h) { unlink(tmpname_h); free(tmpname_h); fclose(fp_h); }
+      return -1;
+    }
+  } else {
+    fp_c = single_unit_fp_c;
+    fp_h = single_unit_fp_h;
+  }
   
 #define IDENTIFIER_FOR_IFDEF(expr)                                            \
   if (!(arg->flags & A1C_SHORT_IFDEF))                                        \
     fprintf(fp_h, "_%s", asn1c_make_namespace_name(arg, expr, 0));            \
   fprintf(fp_h, "_%s_HPP_", asn1c_make_identifier(0, expr, (char*)NULL));
-
-	fprintf(fp_h, "#ifndef\t");
-  IDENTIFIER_FOR_IFDEF(expr);
-	fprintf(fp_h, "\n");
-	fprintf(fp_h, "#define\t");
-  IDENTIFIER_FOR_IFDEF(expr);
-	fprintf(fp_h, "\n\n");
+          
+  if (!IS_SINGLE_UNIT(arg)) {
+    generate_preamble(arg, fp_c, optc, argv);
+    generate_preamble(arg, fp_h, optc, argv);
+    fprintf(fp_h, "#ifndef\t");
+    IDENTIFIER_FOR_IFDEF(expr);
+    fprintf(fp_h, "\n");
+    fprintf(fp_h, "#define\t");
+    IDENTIFIER_FOR_IFDEF(expr);
+    fprintf(fp_h, "\n\n");
+  }
 
 	//fprintf(fp_h, "\n");
 	//HINCLUDE("asn_application.hpp");
@@ -266,8 +602,10 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 		fwrite(ot->buf, ot->len, 1, fp);			\
 	}								\
 } while(0)
-
-	SAVE_STREAM(fp_h, OT_INCLUDES,	"Including external dependencies", 1);
+  
+  if (!IS_SINGLE_UNIT(arg)) {
+    SAVE_STREAM(fp_h, OT_INCLUDES,	"Including external dependencies", 1);
+  }
 
 	//fprintf(fp_h, "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n");
 
@@ -287,14 +625,18 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 	if(!(arg->flags & A1C_NO_INCLUDE_DEPS))
 	SAVE_STREAM(fp_h, OT_POST_INCLUDE, "Referred external types", 1);
 
-	fprintf(fp_h, "\n#endif\t/* ");
-  IDENTIFIER_FOR_IFDEF(expr);
-  fprintf(fp_h, " */\n");
+  if (!IS_SINGLE_UNIT(arg)) {
+    fprintf(fp_h, "\n#endif\t/* ");
+    IDENTIFIER_FOR_IFDEF(expr);
+    fprintf(fp_h, " */\n");
+  }
   
 #undef IDENTIFIER_FOR_IFDEF
 
 	//HINCLUDE("asn_internal.hpp");
-  fprintf(fp_c, "#include \"%s.hpp\"\n\n", expr->Identifier);
+  if (!IS_SINGLE_UNIT(arg)) {
+    fprintf(fp_c, "#include \"%s.hpp\"\n\n", expr->Identifier);
+  }
 	if(arg->flags & A1C_NO_INCLUDE_DEPS)
 		SAVE_STREAM(fp_c, OT_POST_INCLUDE, "", 1);
   if (!(arg->flags & A1C_NO_NAMESPACE)) {
@@ -313,47 +655,56 @@ asn1c_save_streams(arg_t *arg, asn1c_fdeps_t *deps, int optc, char **argv) {
 
 	assert(OT_MAX == 11);	/* Protection from reckless changes */
 
-	fclose(fp_c);
-	fclose(fp_h);
+  if (!IS_SINGLE_UNIT(arg)) {
+    fclose(fp_c);
+  	fclose(fp_h);
+    
+    name_buf = alloca(strlen(expr->Identifier) + 5);
+    
+    sprintf(name_buf, "%s.cpp", expr->Identifier);
+    if(identical_files(name_buf, tmpname_c)) {
+      c_retained = " (contents unchanged)";
+      unlink(tmpname_c);
+    } else {
+      if(rename(tmpname_c, name_buf)) {
+        unlink(tmpname_c);
+        perror(tmpname_c);
+        free(tmpname_c);
+        free(tmpname_h);
+        return -1;
+      }
+    }
 
-	name_buf = alloca(strlen(expr->Identifier) + 3);
+    sprintf(name_buf, "%s.hpp", expr->Identifier);
+    if(identical_files(name_buf, tmpname_h)) {
+      h_retained = " (contents unchanged)";
+      unlink(tmpname_h);
+    } else {
+      if(rename(tmpname_h, name_buf)) {
+        unlink(tmpname_h);
+        perror(tmpname_h);
+        free(tmpname_c);
+        free(tmpname_h);
+        return -1;
+      }
+    }
+    
+    fprintf(stderr, "Compiled %s.cpp%s\n", expr->Identifier, c_retained);
+    fprintf(stderr, "Compiled %s.hpp%s\n", expr->Identifier, h_retained);
+    
+    free(tmpname_c);
+    free(tmpname_h);
+  } else {
+    fprintf(stderr, "Compiled %s\n", expr->Identifier);
+  }
 
-  sprintf(name_buf, "%s.cpp", expr->Identifier);
-	if(identical_files(name_buf, tmpname_c)) {
-		c_retained = " (contents unchanged)";
-		unlink(tmpname_c);
-	} else {
-		if(rename(tmpname_c, name_buf)) {
-			unlink(tmpname_c);
-			perror(tmpname_c);
-			free(tmpname_c);
-			free(tmpname_h);
-			return -1;
-		}
-	}
-
-  sprintf(name_buf, "%s.hpp", expr->Identifier);
-	if(identical_files(name_buf, tmpname_h)) {
-		h_retained = " (contents unchanged)";
-		unlink(tmpname_h);
-	} else {
-		if(rename(tmpname_h, name_buf)) {
-			unlink(tmpname_h);
-			perror(tmpname_h);
-			free(tmpname_c);
-			free(tmpname_h);
-			return -1;
-		}
-	}
-
-	free(tmpname_c);
-	free(tmpname_h);
-
-	fprintf(stderr, "Compiled %s.cpp%s\n",
-		expr->Identifier, c_retained);
-	fprintf(stderr, "Compiled %s.hpp%s\n",
-		expr->Identifier, h_retained);
 	return 0;
+}
+
+void asn1c_set_single_unit(const char* filename) {
+  if ('=' == filename[0]) {
+    single_unit_filename = filename + 1;
+  }
 }
 
 #define ASN1C_VERSION "0.9.24"
@@ -362,11 +713,21 @@ static int
 generate_preamble(arg_t *arg, FILE *fp, int optc, char **argv) {
 	fprintf(fp,
 	"/*\n"
-	" * Generated by asn1cpp-" VERSION " which is based on asn1c-" ASN1C_VERSION " (http://lionet.info/asn1c)\n"
-	" * From ASN.1 module \"%s\"\n"
-	" * \tfound in \"%s\"\n",
-		arg->expr->module->ModuleName,
-		arg->expr->module->source_file_name);
+	" * Generated by asn1cpp-" VERSION " which is based on asn1c-" ASN1C_VERSION " (http://lionet.info/asn1c)\n");
+  if (arg->expr) {
+    fprintf(fp, " * From ASN.1 module \"%s\"\n"
+      " * \tfound in \"%s\"\n",
+        arg->expr->module->ModuleName,
+        arg->expr->module->source_file_name);
+  } else {
+    asn1p_module_t* module;
+    fprintf(fp, " * From ASN.1 modules:\n");
+    TQ_FOR(module, &(arg->asn->modules), mod_next) {
+      if (module->_tags != MT_STANDARD_MODULE) {
+        fprintf(fp, " * \t%s found in \"%s\"\n", module->ModuleName, module->source_file_name);
+      }
+    }
+  }
 	if(optc >= 1) {
 		int i;
 		fprintf(fp, " * \t`asn1cpp ");

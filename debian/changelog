@@ -1,3 +1,10 @@
+asn1cpp (0.4.0) unstable; urgency=low
+
+  * Bugfixes.
+  * Added option -fsingle-unit.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Wed, 06 Jan 2016 08:51:51 +0300
+
 asn1cpp (0.3.2) unstable; urgency=low
 
   * Removed unnecessary #include directives from generated code.

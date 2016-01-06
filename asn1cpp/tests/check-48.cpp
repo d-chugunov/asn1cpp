@@ -7,7 +7,11 @@
 #include <errno.h>
 #include <iostream>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <UserIdentifier.hpp>
+#endif
 
 using namespace ModuleSetChoiceExtensibility;
 

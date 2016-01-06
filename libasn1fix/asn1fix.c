@@ -16,6 +16,15 @@ static int asn1f_check_constraints(arg_t *arg);	/* For subtype constraints */
 static int asn1f_check_duplicate(arg_t *arg);
 static int asn1f_apply_unique_index(arg_t *arg);
 static int phase_1_1(arg_t *arg, int prm2);
+static int is_single_unit = 0;
+
+void asn1f_set_single_unit(void) {
+  is_single_unit = 1;
+}
+
+static int asn1f_is_single_unit() {
+  return is_single_unit;
+}
 
 arg_t a1f_replace_me_with_proper_interface_arg;
 
@@ -264,7 +273,9 @@ asn1f_fix_module__phase_2(arg_t *arg) {
 		/*
 		 * Uniquely tag each inner type.
 		 */
-		asn1f_apply_unique_index(0);
+    if (!asn1f_is_single_unit()) {
+      asn1f_apply_unique_index(0);
+    }
 		ret = asn1f_recurse_expr(arg, asn1f_apply_unique_index);
 		RET2RVAL(ret, rvalue);
 
@@ -531,7 +542,7 @@ static int
 asn1f_apply_unique_index(arg_t *arg) {
 	static int unique_index;
 	if(!arg) { unique_index = 0; return 0; }
-
+  
 	arg->expr->_type_unique_index = ++unique_index;
 
 	return 0;

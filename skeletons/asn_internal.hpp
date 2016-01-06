@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Dmitriy Chugunov <chugunovdima@gmail.com>. All rights reserved.
+ * Copyright (c) 2014-2016 Dmitriy Chugunov <chugunovdima@gmail.com>. All rights reserved.
  * Redistribution and modifications are permitted subject to BSD license.
  */
 /*
@@ -15,7 +15,7 @@
 #endif
 
 /* Environment version might be used to avoid running with the old library */
-#define	ASN1CPP_ENVIRONMENT_VERSION	0x032	/* Compile-time version */
+#define	ASN1CPP_ENVIRONMENT_VERSION	0x040	/* Compile-time version */
 int get_asn1cpp_environment_version(void);	/* Run-time version */
 
 #define	CALLOC(nmemb, size)	calloc(nmemb, size)

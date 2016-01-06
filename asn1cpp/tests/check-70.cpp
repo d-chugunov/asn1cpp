@@ -16,7 +16,11 @@
 #include <errno.h>
 #include <iostream>
 
+#ifdef SINGLE_UNIT
+#include <asn.hpp>
+#else
 #include <PDU.hpp>
+#endif
 
 using namespace ModuleTestXERDecoding;
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2003, 2004, 2005, 2006, 2013
  * 	Lev Walkin <vlm@lionet.info>. All rights reserved.
  * 
- * Copyright (c) 2014-2015
+ * Copyright (c) 2014-2016
  *  Dmitriy Chugunov <chugunovdima@gmail.com>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,11 @@
  * It uses them in turn to parse, fix and then compile or print the ASN.1 tree.
  */
 #include "sys-common.h"
+#include <asn1c_save.h>
 
 #undef  COPYRIGHT
 #define COPYRIGHT       \
-	"Copyright (c) 2014-2015 Dmitriy Chugunov <chugunovdima@gmail.com>\n"
+	"Copyright (c) 2014-2016 Dmitriy Chugunov <chugunovdima@gmail.com>\n"
 
 #include <asn1parser.h>		/* Parse the ASN.1 file and build a tree */
 #include <asn1fix.h>		/* Fix the ASN.1 tree */
@@ -120,6 +121,10 @@ main(int ac, char **av) {
       asn1_compiler_flags |= A1C_PTR_CHOICE_GETTERS;
     } else if(strcmp(optarg, "short-ifdef") == 0) {
       asn1_compiler_flags |= A1C_SHORT_IFDEF;
+    } else if(strncmp(optarg, "single-unit", 11) == 0 && (optarg[11] == '=' || optarg[11] == '\0')) {
+      asn1_compiler_flags |= A1C_SINGLE_UNIT;
+      asn1c_set_single_unit(optarg + 11);
+      asn1f_set_single_unit();
     } else {
 			fprintf(stderr, "-f%s: Invalid argument\n", optarg);
 			exit(EX_USAGE);
@@ -217,6 +222,11 @@ main(int ac, char **av) {
 			exit(EX_USAGE);
 		}
 	}
+  
+  if ((asn1_compiler_flags & A1C_SHORT_IFDEF) && (asn1_compiler_flags & A1C_SINGLE_UNIT)) {
+    fprintf(stderr, "Options -fshort-ifdef and -fsingle-unit cannot be used at the same time.\n");
+    exit(EX_USAGE);
+  }
 
 	/*
 	 * Ensure that there are some input files present.
@@ -484,6 +494,7 @@ usage(const char *av0) {
 "  -fno-switch           Use member tables instead of switch for getting pointer to member by index.\n"
 "  -fptr-choice-getters  Use pointers instead of references as return types of getters of classes for CHOICE.\n"
 "  -fshort-ifdef         Use short form (without module name) of #ifdef directive in *.hpp files.\n"
+"  -fsingle-unit=<name>  Generate single translation unit (with given name if specified) for entire  ASN.1-file  instead  of generating a translation unit for each type in ASN.1-file.\n"
 "\n"
 
 //"  -gen-PER              Generate PER support code\n"
