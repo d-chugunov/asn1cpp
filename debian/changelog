@@ -1,3 +1,9 @@
+asn1cpp (0.4.1) unstable; urgency=low
+
+  * Bugfixes.
+
+ -- Dmitriy Chugunov <chugunovdima@gmail.com>  Thu, 07 Jan 2016 22:13:00 +0300
+
 asn1cpp (0.4.0) unstable; urgency=low
 
   * Bugfixes.

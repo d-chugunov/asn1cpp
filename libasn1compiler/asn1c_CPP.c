@@ -4797,30 +4797,20 @@ emit_include_dependencies(arg_t *arg) {
 			}
 		}
     
-    if (!IS_SINGLE_UNIT(arg)) {
-      if((!(memb->expr_type & ASN_CONSTR_MASK)
-        && memb->expr_type > ASN_CONSTR_MASK)
-      || memb->meta_type == AMT_TYPEREF) {
-        if(memb->marker.flags & EM_UNRECURSE) {
+    if((!(memb->expr_type & ASN_CONSTR_MASK)
+      && memb->expr_type > ASN_CONSTR_MASK)
+    || memb->meta_type == AMT_TYPEREF) {
+      if(memb->marker.flags & EM_UNRECURSE) {
+        if (!IS_SINGLE_UNIT(arg)) {
           GEN_POSTINCLUDE(asn1c_type_name(arg,
             memb, TNF_INCLUDE));
-        } else {
-          GEN_INCLUDE(asn1c_type_name(arg,
-            memb, TNF_INCLUDE));
+        }
+      } else {
+        char* typename = asn1c_type_name(arg, memb, TNF_INCLUDE);
+        if (typename) {
+          GEN_INCLUDE(typename);
         }
       }
-    } else {
-      if((!(memb->expr_type & ASN_CONSTR_MASK)
-        && memb->expr_type > ASN_CONSTR_MASK)
-      /*|| memb->meta_type == AMT_TYPEREF*/) {
-        if(memb->marker.flags & EM_UNRECURSE) {
-  //				GEN_POSTINCLUDE(asn1c_type_name(arg,
-  //					memb, TNF_INCLUDE));
-        } else {
-          GEN_INCLUDE(asn1c_type_name(arg,
-            memb, TNF_INCLUDE));
-    }
-	}
     }
 	}
 

@@ -15,7 +15,7 @@
 #endif
 
 /* Environment version might be used to avoid running with the old library */
-#define	ASN1CPP_ENVIRONMENT_VERSION	0x040	/* Compile-time version */
+#define	ASN1CPP_ENVIRONMENT_VERSION	0x041	/* Compile-time version */
 int get_asn1cpp_environment_version(void);	/* Run-time version */
 
 #define	CALLOC(nmemb, size)	calloc(nmemb, size)
