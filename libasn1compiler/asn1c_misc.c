@@ -286,13 +286,17 @@ asn1c_type_name(arg_t *arg, asn1p_expr_t *expr, enum tnfmt _format) {
 		return asn1c_make_identifier(AMI_MASK_ONLY_SPACES,
 			0, exprid ? exprid->Identifier : typename, (char*)0);
 	case TNF_INCLUDE:
-		return asn1c_make_identifier(
-			AMI_MASK_ONLY_SPACES | AMI_NODELIMITER,
-			0, ((!stdname || (arg->flags & A1C_INCLUDES_QUOTED))
-				? "\"" : "<"),
-			exprid ? exprid->Identifier : typename,
-			((!stdname || (arg->flags & A1C_INCLUDES_QUOTED))
-				? ".hpp\"" : ".hpp>"), (char*)0);
+    if ((arg->flags & A1C_SINGLE_UNIT) && !stdname) {
+      return NULL;
+    } else {
+      return asn1c_make_identifier(
+        AMI_MASK_ONLY_SPACES | AMI_NODELIMITER,
+        0, ((!stdname || (arg->flags & A1C_INCLUDES_QUOTED))
+          ? "\"" : "<"),
+        exprid ? exprid->Identifier : typename,
+        ((!stdname || (arg->flags & A1C_INCLUDES_QUOTED))
+          ? ".hpp\"" : ".hpp>"), (char*)0);
+    }
 	case TNF_SAFE:
 		return asn1c_make_identifier(0, exprid, typename, (char*)0);
 	case TNF_CTYPE:	/* C type */
